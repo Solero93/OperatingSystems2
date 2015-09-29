@@ -4,7 +4,7 @@
  *
  *
  */
-
+//TODO Change to char*
 #define TYPE_RBTREE_KEY int
 
 /**

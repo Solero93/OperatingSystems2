@@ -46,7 +46,7 @@ static void freeRBData(RBData *data)
  * is satisfied, 0 (false) otherwise.
  *
  */
-
+//TODO Change to compare char* (strcmp)
 static int compLT(TYPE_RBTREE_KEY key1, TYPE_RBTREE_KEY key2)
 {
   int rc;
@@ -65,7 +65,7 @@ static int compLT(TYPE_RBTREE_KEY key1, TYPE_RBTREE_KEY key2)
  * is satisfied, 0 (false) otherwise.
  *
  */
-
+//TODO Change to compare char* (strcmp)
 static int compEQ(TYPE_RBTREE_KEY key1, TYPE_RBTREE_KEY key2)
 {
   int rc;

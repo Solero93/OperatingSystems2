@@ -65,7 +65,7 @@ int main(int argc, char **argv)
       treeData->key = a;
       treeData->num = 1;
 
-      insertNode(tree, treeData);
+      insertNode(tree, treeData); //TODO pass to lowercase before inserting (tolower)
     }
   }
 
