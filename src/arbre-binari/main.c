@@ -13,6 +13,9 @@
 
 #include "red-black-tree.h"
 
+//NOTE Defined maximum size of char vector
+#define MAXCHAR 100
+
 /**
  *
  *  Main function. Contains a simple example using a red-black-tree. 
@@ -21,67 +24,60 @@
 
 int main(int argc, char **argv)
 {
-  int a, maxnum, ct;
-
+  int a;
+  char* buffer;
   RBTree *tree;
   RBData *treeData;
+  FILE *fp;
 
-  if (argc != 2)
+  buffer = (char*) malloc(sizeof(char) * MAXCHAR);
+  
+  if (argc != 1)
   {
-    printf("Usage: %s maxnum\n", argv[0]);
+    printf("Usage: <filename> \n");
     exit(1);
   }
+  
+  fp = fopen(argv[1], "r");
 
-  maxnum = atoi(argv[1]);
-
-  printf("Test with red-black-tree\n");
-
-  /* Random seed, same as before just to ensure that the same values are generated */
-  srand(0);
+  printf("Reading words and inserting them to black-red tree\n");
 
   /* Allocate memory for tree */
   tree = (RBTree *) malloc(sizeof(RBTree));
 
   /* Initialize the tree */
-  initTree(tree);
-
-  for (ct = 0; ct < maxnum; ct++) {
-    /* Generate random key to be inserted in the tree */
-    a = rand() % 100 + 1;
-
-    /* Search if the key is in the tree */
-    treeData = findNode(tree, a); 
-
-    if (treeData != NULL) {
-
-      /* If the key is in the tree increment 'num' */
-      treeData->num++;
-    } else {
-
-      /* If the key is not in the tree, allocate memory for the data
-       * and insert in the tree */
-
-      treeData = malloc(sizeof(RBData));
-      treeData->key = a;
-      treeData->num = 1;
-
-      insertNode(tree, treeData); //TODO pass to lowercase before inserting (tolower)
-    }
+  initTree(tree);  
+  
+  while (fscanf(fp, "%s", buffer) != EOF) {
+     char* tmpChar;
+     tmpChar = (char*) malloc(sizeof(char) * MAXCHAR);
+     
+     strcpy(tmpChar, buffer);
+      
+     //Search if the key is in the tree
+     treeData = findNode(tree, tmpChar);
+     
+     if (treeData != NULL) {
+       //If the key is in the tree increment 'num'
+       treeData->num++;
+     } else {
+       //If the key is not in the tree, allocate memory for the data and insert in the tree
+       treeData = malloc(sizeof(RBData));
+       treeData->key = tmpChar;
+       treeData->num = 1;
+       
+       insertNode(tree, treeData);
+     }
   }
-
+  
   printf("Nombre total de nodes a l'arbre: %d\n", getNumNodes(tree));
-  for(a = 0; a < 100; a++)
-  {
-    treeData = findNode(tree, a);
-
-    if (treeData) 
-      printf("El numero %d apareix %d cops a l'arbre.\n", a, treeData->num);
-  }
   
   /* Delete the tree */
   deleteTree(tree);
 
   printf("Done.\n");
+  
+  fclose(fp); // Close file
 
   return 0;
 }
