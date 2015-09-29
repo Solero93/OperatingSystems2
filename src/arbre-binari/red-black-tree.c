@@ -44,16 +44,18 @@ static void freeRBData(RBData *data)
  *
  * Compares if key1 is less than key2. Should return 1 (true) if condition
  * is satisfied, 0 (false) otherwise.
+ * 
+ * NOTE: We assume TYPE_RBTREE_KEY to be a (char *) since that is the required data type for the assignment
  *
  */
-//TODO Change to compare char* (strcmp)
 static int compLT(TYPE_RBTREE_KEY key1, TYPE_RBTREE_KEY key2)
 {
   int rc;
 
   rc = 0;
 
-  if (key1 < key2)
+  
+  if (strcmp(key1, key2) < 0)
     rc = 1;
 
   return rc;
@@ -64,15 +66,17 @@ static int compLT(TYPE_RBTREE_KEY key1, TYPE_RBTREE_KEY key2)
  * Compares if key1 is equal to key2. Should return 1 (true) if condition
  * is satisfied, 0 (false) otherwise.
  *
+ * 
+ * NOTE: We assume TYPE_RBTREE_KEY to be a (char *) since that is the required data type for the assignment
+ * 
  */
-//TODO Change to compare char* (strcmp)
 static int compEQ(TYPE_RBTREE_KEY key1, TYPE_RBTREE_KEY key2)
 {
   int rc;
 
   rc = 0;
 
-  if (key1 == key2)
+  if (strcmp(key1, key2) == 0)
     rc = 1;
 
   return rc;
