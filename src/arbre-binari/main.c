@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "red-black-tree.h"
 
@@ -24,7 +25,6 @@
 
 int main(int argc, char **argv)
 {
-  int a;
   char* buffer;
   RBTree *tree;
   RBData *treeData;
@@ -32,7 +32,7 @@ int main(int argc, char **argv)
 
   buffer = (char*) malloc(sizeof(char) * MAXCHAR);
   
-  if (argc != 1)
+  if (argc != 2)
   {
     printf("Usage: <filename> \n");
     exit(1);
@@ -81,4 +81,3 @@ int main(int argc, char **argv)
 
   return 0;
 }
-

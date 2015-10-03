@@ -4,7 +4,7 @@
  *
  *
  */
-#define TYPE_RBTREE_KEY (char *)
+#define TYPE_RBTREE_KEY char*
 
 /**
  *
@@ -69,6 +69,3 @@ int getNumNodes(RBTree *tree);
 void insertNode(RBTree *tree, RBData *data);
 RBData *findNode(RBTree *tree, TYPE_RBTREE_KEY key); 
 void deleteTree(RBTree *tree);
-
-
-
