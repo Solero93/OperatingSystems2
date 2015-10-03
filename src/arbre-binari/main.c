@@ -11,11 +11,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "red-black-tree.h"
 
 //NOTE Defined maximum size of char vector
 #define MAXCHAR 100
+
+/**
+ * Auxiliar function to pass a char string to lowercase
+ */
+
+void toLowercase(char* string){
+  int i;
+  for (i=0; i < strlen(string) ; i++){
+    string[i] = (char)tolower((int)string[i]);
+  }
+}
 
 /**
  *
@@ -53,7 +65,9 @@ int main(int argc, char **argv)
      tmpChar = (char*) malloc(sizeof(char) * MAXCHAR);
      
      strcpy(tmpChar, buffer);
-      
+     
+     toLowercase(tmpChar);
+     
      //Search if the key is in the tree
      treeData = findNode(tree, tmpChar);
      
