@@ -1,7 +1,7 @@
 /**
  *
- * Main file 
- * 
+ * Main file
+ *
  * Lluis Garrido, 2015.
  *
  */
@@ -12,7 +12,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-#define MAXCHAR  100
+#define MAXCHAR  5
 
 /**
  *
@@ -25,9 +25,7 @@ void processDictionary(char *filename)
 {
   FILE *fp;
 
-  char *paraula;
-
-  paraula = (char *) malloc(sizeof(char) * MAXCHAR);
+  char paraula[MAXCHAR];
 
   fp = fopen(filename, "r");
   if (!fp) {
@@ -42,13 +40,11 @@ void processDictionary(char *filename)
   }
 
   fclose(fp);
-
-  free(paraula);
 }
 
 /**
  *
- * Main function. 
+ * Main function.
  *
  */
 
@@ -63,4 +59,3 @@ int main(int argc, char **argv)
 
   return 0;
 }
-
