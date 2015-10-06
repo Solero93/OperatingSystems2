@@ -88,7 +88,7 @@ int main(int argc, char **argv)
   
   /* Delete the tree */
   deleteTree(tree);
-
+  free(tree);
   printf("Done.\n");
   
   fclose(fp); // Close file
