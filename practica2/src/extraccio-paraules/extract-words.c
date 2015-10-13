@@ -16,22 +16,49 @@ int extract_words(char* wordToSeparate) {
   tmp = calloc(len, sizeof(char));
 
   for(int i = 0; i < len; i++) {
-    //printf("Posicio: %02i, caracter: %c, es de tipus: ", i, (char)currentChain[i]);
-    if (isalpha(currentChain[i]))
+    if (isalpha(currentChain[i])) {
+      // If it's a letter, add it
       tmp[tmpWordCount] = currentChain[i];
       tmpWordCount++;
-    else if (isdigit(currentChain[i]))
+    }
+    else if (isdigit(currentChain[i])) {
+      //If it's a number, dump word
       tmp = calloc(len, sizeof(char));
-      printf("nombre");
-    else if (ispunct(currentChain[i]))
-      //Search for hyphen or apostrophe
-    else if (isspace(currentChain[i]))
-      extractedWords[extractedCount] = tmp;
-      tmp = calloc
-      printf("espai o retorn de carro");
-    else 
-      printf("no se sap");
+    }
+    else if (ispunct(currentChain[i])) {
 
-    printf("\n");
+      if (currentChain[i] == "-") {
+        // If it's a hyphen, separate into another word
+        extractedWords[extractedCount] = tmp;
+        extractedCount++;
+        tmp = calloc(len, sizeof(char));
+      }
+      else if (currentChain[i] == "'") {
+        // If apostrophe, add it to word
+        tmp[tmpWordCount] = currentChain[i];
+        tmpWordCount++;
+      }
+      else {
+        // Rest of cases, dump word
+        extractedWords[extractedCount] = tmp;
+        extractedCount++;
+        tmp = calloc(len, sizeof(char));
+      }
+    }
+    else if (isspace(currentChain[i])) {
+      // If it's a space or linebreak, separate word
+      extractedWords[extractedCount] = tmp;
+      extractedCount++;
+      tmp = calloc(len, sizeof(char));
+    }
+    else {
+      tmp = calloc(len, sizeof(char));
+    }
   }
+
+  // FIXME
+  if (tmp != NULL)
+    extractedWords[extractedCount] = tmp;
+
+  return extractedWords;
 }
