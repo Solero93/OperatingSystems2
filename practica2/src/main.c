@@ -2,6 +2,7 @@
 #include <string.h> 
 
 #include "indexacio-local/linked-list.h"
+#include "arbre-binari/red-black-tree.h"
 
 #define MAXCHAR 100
 #define SIZE    100
@@ -9,6 +10,9 @@
 
 int main(int argc, char ** argv) {
   List ** hash_table = calloc(SIZE, sizeof(List *));
+  RBTree * tree = malloc(sizeof(RBTree));
+  initTree(tree);
+  insertDictionary(tree);
   char * buffer = malloc(sizeof(char) * MAXCHAR);
   for (file : files) {
     while (fscanf(fp, "%s", buffer) != EOF) {
@@ -18,6 +22,23 @@ int main(int argc, char ** argv) {
     insertarAlGlobal(arbre, hash_table);
   }
   free(hash_table);
+}
+
+void insertarAlGlobal(RBTree * tree, List ** hash_table) {
+  List * list;
+  ListItem * current;
+  RBData * treeData;
+  for (int i = 0; i < SIZE; i++) {
+    list = hash_table[i];
+    if (list != NULL) {
+      current = list->first;
+      while (current != NULL) {
+	treeData = findNode(tree, current->data->key);
+	treeData->num += current->data->numTimes;
+	current = current->next;
+      }
+    }
+  }
 }
 
 void clearTable(List ** table) {
