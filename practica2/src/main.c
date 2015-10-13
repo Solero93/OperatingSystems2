@@ -15,6 +15,7 @@ int main(int argc, char ** argv) {
 void clearTable(List ** table) {
   for(int i = 0; i < SIZE; i++) {
     if (table[i] != NULL) {
+      deleteList(table[i]);
       free(table[i]);
       table[i] = NULL;
     }
