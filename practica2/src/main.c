@@ -8,8 +8,16 @@
 
 
 int main(int argc, char ** argv) {
-  List ** hash_table = calloc(sizeof(List *) * SIZE);
-  
+  List ** hash_table = calloc(SIZE, sizeof(List *));
+  char * buffer = malloc(sizeof(char) * MAXCHAR);
+  for (file : files) {
+    while (fscanf(fp, "%s", buffer) != EOF) {
+      char ** paraules = extreureParaules(buffer);
+      insertarParaules(hash_table, paraules, len);
+    }
+    insertarAlGlobal(arbre, hash_table);
+  }
+  free(hash_table);
 }
 
 void clearTable(List ** table) {
