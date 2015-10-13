@@ -79,3 +79,29 @@ int main(int argc, char **argv)
   return 0;
 }
 
+void insertarPalabras(List ** hash_table, char ** palabras, int len) {
+  char * palabra;
+  for (int i = 0; i < len; i++) {
+    insertarPalabra(hash_table, palabras[i]);
+  }
+}
+
+void insertarPalabra(List ** hash_table, char * palabra) {
+  int hash = hashWord(palabra);
+  List * list;
+  ListData * list_data;
+  list = hash_table[hash];
+  if (list == NULL) {
+    list = malloc(sizeof(List))
+    initList(list);
+  }
+  list_data = findList(list, palabra);
+  if (list_data == NULL) {
+    list_data = malloc(sizeof(ListData));
+    list_data->key = palabra;
+    list_data->numTimes++;
+    insertList(list, list_data);
+  } else {
+    list_data->numTimes++;
+  }
+}
