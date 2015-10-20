@@ -3,62 +3,61 @@
 #include <ctype.h>  // per les funcions isalpha, isdigit, ...
 #include <sys/stat.h>
 
-#define MAXCHAR 100
+/*
+  Generator of next word of file (taking into account given criteria)
+*/
+char* extractWord(FILE* fileToSeparate) {
+  int tmpWordCount = 0, isEndWord = FALSE;
+  char tmpChar;
+  char* tmpWord = calloc(MAXCHAR, sizeof(char));
 
-int extract_words(char* wordToSeparate) {
-  int len = strlen(wordToSeparate), extractedCount=0, tmpWordCount=0;
-  char* tmpWord;
-  char** extractedWords;
-
-  wordToSeparate = toLowerCase(wordToSeparate);
-
-  extractedWords = calloc(len, sizeof(char*));
-  tmp = calloc(len, sizeof(char));
-
-  for(int i = 0; i < len; i++) {
-    if (isalpha(currentChain[i])) {
-      // If it's a letter, add it
-      tmp[tmpWordCount] = currentChain[i];
-      tmpWordCount++;
-    }
-    else if (isdigit(currentChain[i])) {
-      //If it's a number, dump word
-      tmp = calloc(len, sizeof(char));
-    }
-    else if (ispunct(currentChain[i])) {
-
-      if (currentChain[i] == "-") {
-        // If it's a hyphen, separate into another word
-        extractedWords[extractedCount] = tmp;
-        extractedCount++;
-        tmp = calloc(len, sizeof(char));
-      }
-      else if (currentChain[i] == "'") {
-        // If apostrophe, add it to word
-        tmp[tmpWordCount] = currentChain[i];
-        tmpWordCount++;
-      }
-      else {
-        // Rest of cases, dump word
-        extractedWords[extractedCount] = tmp;
-        extractedCount++;
-        tmp = calloc(len, sizeof(char));
-      }
-    }
-    else if (isspace(currentChain[i])) {
-      // If it's a space or linebreak, separate word
-      extractedWords[extractedCount] = tmp;
-      extractedCount++;
-      tmp = calloc(len, sizeof(char));
-    }
-    else {
-      tmp = calloc(len, sizeof(char));
+  while (isEndWord == FALSE && tmpChar != EOF) {
+    tmpChar = (char)fgetc(fileToSeparate);
+    switch(categorizeCharacter(tmpChar)){
+      case -1 : // Dump Word
+        tmpWord = calloc(MAXCHAR, sizeof(char)); tmpWordCount = 0; break;
+      case 0 : // Add character
+        tmpWord[tmpWordCount++] = tmpChar; break; 
+      case 1 : // End word
+        isEndWord = TRUE; tmpWordCount = 0; break;
     }
   }
+  
+  if (tmpChar != EOF || strlen(tmpWord) > 0){
+    return tmpWord;
+  } else {
+    return NULL;
+  }
 
-  // FIXME
-  if (tmp != NULL)
-    extractedWords[extractedCount] = tmp;
-
-  return extractedWords;
+/*
+  Function that returns
+    -1 -> dump current word
+    0 -> continue with word
+    1 -> end current word
+*/
+int categorizeCharacter(char character){
+  char tmpChar = toLowerCase(character);
+  if (isalpha(tmpChar)) {
+    return 0;
+  }
+  else if (isdigit(tmpChar)) {
+    return -1;
+  }
+  else if (ispunct(tmpChar)) {
+    if (tmpChar == "-") {
+      return 1;
+    }
+    else if (tmpChar == "'") {
+      return 0;
+    }
+    else {
+      return -1;
+    }
+  }
+  else if (isspace(tmpChar)) {
+    return 1;
+  }
+  else {
+    return -1;
+  }
 }
