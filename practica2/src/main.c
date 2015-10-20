@@ -1,48 +1,17 @@
 #include <stdio.h>
 #include <string.h> 
+#include <stdlib.h>
 
-#include "indexacio-local/linked-list.h"
-#include "arbre-binari/red-black-tree.h"
+#include "linked-list.h"
+#include "red-black-tree.h"
+#include "extract-words.h"
 
 #define MAXCHAR 100
 #define SIZE    100
 
 
-int main(int argc, char ** argv) {
-  List ** hash_table = calloc(SIZE, sizeof(List *));
-  RBTree * tree = malloc(sizeof(RBTree));
-  FILE * fp, currentFile;
-  char * filename = malloc(sizeof(char) * MAXCHAR);
-  char * word;
-  int numFiles;
-  if (argc != 3) {
-    printf("Usage: <dictionary> <cfg file>\n");
-    exit(1);
-  }
-  initTree(tree);
-  fp = fopen(argv[1], "r");
-  crearArbreDiccionari(tree, fp);
-  fclose(fp);
-  // We now have the dictionary created, let's now start with the counting
-  fp = fopen(argv[2], "r");
-  fscanf(fp, "%d", &numFiles);
-  for (int i = 0; i < numFiles; i++) {
-    fscanf(fp, "%s", filename);
-    currentFile = fopen(filename)
-    hash_table
-    while ((word = extreureParaules(currentFile)) != NULL) {
-      insertarPalabraAlHash(hash_table, word);
-    }
-    insertarAlGlobal(tree, hash_table);
-    clearTable(hash_table);
-    fclose(currentFile);
-  }
-  free(hash_table);
-  deleteTree(tree);
-  free(tree);
-}
-
 void crearArbreDiccionari(RBTree * tree, FILE * fp) {
+  RBData * treeData;
   char * buffer = (char*) malloc(sizeof(char) * MAXCHAR);
   while (fscanf(fp, "%s", buffer) != EOF) {
     char* tmpChar;
@@ -50,7 +19,7 @@ void crearArbreDiccionari(RBTree * tree, FILE * fp) {
      
     strcpy(tmpChar, buffer);
      
-    toLowercase(tmpChar);
+    //toLowercase(tmpChar);
      
     //Search if the key is in the tree
     treeData = findNode(tree, tmpChar);
@@ -84,13 +53,25 @@ void insertarAlGlobal(RBTree * tree, List ** hash_table) {
   }
 }
 
+int hashWord(char* cadena) {
+  int len = strlen(cadena) - 1; 
+  int sum = 0;
+  int seed = 131;
+  for(int i = 0; i < len; i++)
+    sum = sum * seed + (int)cadena[i];
+
+  int hash = sum % SIZE;
+
+  return hash;
+}
+
 void insertarPalabraAlHash(List ** hash_table, char * palabra) {
   int hash = hashWord(palabra);
   List * list;
   ListData * list_data;
   list = hash_table[hash];
   if (list == NULL) {
-    list = malloc(sizeof(List))
+    list = malloc(sizeof(List));
     initList(list);
   }
   list_data = findList(list, palabra);
@@ -114,14 +95,39 @@ void clearTable(List ** hash_table) {
   }
 }
 
-int hashWord(char* cadena) {
-  len = strlen(cadena) - 1; 
-  sum = 0;
-  seed = 131;
-  for(i = 0; i < len; i++)
-    sum = sum * seed + (int)cadena[i];
 
-  hash = sum % SIZE;
-
-  return hash
+int main(int argc, char ** argv) {
+  List ** hash_table = calloc(SIZE, sizeof(List *));
+  RBTree * tree = malloc(sizeof(RBTree));
+  FILE * configFile;
+  FILE * currentFile;
+  char * filename = malloc(sizeof(char) * MAXCHAR);
+  char * word;
+  int numFiles;
+  if (argc != 3) {
+    printf("Usage: <dictionary> <cfg file>\n");
+    exit(1);
+  }
+  initTree(tree);
+  configFile = fopen(argv[1], "r");
+  crearArbreDiccionari(tree, configFile);
+  fclose(configFile);
+  // We now have the dictionary created, let's now start with the counting
+  configFile = fopen(argv[2], "r");
+  fscanf(configFile, "%d", &numFiles);
+  for (int i = 0; i < numFiles; i++) {
+    fscanf(configFile, "%s", filename);
+    currentFile = fopen(filename, "r");
+    while ((word = extractWord(currentFile)) != NULL) {
+      insertarPalabraAlHash(hash_table, word);
+    }
+    insertarAlGlobal(tree, hash_table);
+    clearTable(hash_table);
+    fclose(currentFile);
+  }
+  free(hash_table);
+  deleteTree(tree);
+  free(tree);
 }
+
+

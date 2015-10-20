@@ -1,7 +1,7 @@
 # This is the makefile that generates the executable
 
 # Files to compile
-FILES_C = main.c linked-list.c 
+FILES_C = main.c linked-list.c extract-words.c red-black-tree.c
 
 # Exectuable to generate
 TARGET = main

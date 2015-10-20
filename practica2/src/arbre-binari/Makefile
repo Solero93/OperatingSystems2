@@ -7,7 +7,7 @@ FILES_C = main.c red-black-tree.c
 TARGET = main
 
 # Compilation options
-CFLAGS = -Wall -Werror -g
+CFLAGS = -std=c99 -Wall -Werror -g
 
 # Linker options 
 LFLAGS = -lm

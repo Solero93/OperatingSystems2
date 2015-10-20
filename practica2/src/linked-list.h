@@ -18,7 +18,7 @@
  *
  */
 
-#define TYPE_LIST_KEY (char*)
+#define TYPE_LIST_KEY char*
 
 /**
  *

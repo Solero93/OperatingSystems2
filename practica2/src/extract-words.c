@@ -2,6 +2,9 @@
 #include <string.h> // per la funcio strlen
 #include <ctype.h>  // per les funcions isalpha, isdigit, ...
 #include <sys/stat.h>
+#include <stdlib.h>
+
+#include "extract-words.h"
 
 /*
   Generator of next word of file (taking into account given criteria)
@@ -28,7 +31,7 @@ char* extractWord(FILE* fileToSeparate) {
   } else {
     return NULL;
   }
-
+}
 /*
   Function that returns
     -1 -> dump current word
@@ -36,7 +39,7 @@ char* extractWord(FILE* fileToSeparate) {
     1 -> end current word
 */
 int categorizeCharacter(char character){
-  char tmpChar = toLowerCase(character);
+  char tmpChar = tolower(character);
   if (isalpha(tmpChar)) {
     return 0;
   }
@@ -44,10 +47,10 @@ int categorizeCharacter(char character){
     return -1;
   }
   else if (ispunct(tmpChar)) {
-    if (tmpChar == "-") {
+    if (tmpChar == '-') {
       return 1;
     }
-    else if (tmpChar == "'") {
+    else if (tmpChar == '\'') {
       return 0;
     }
     else {
