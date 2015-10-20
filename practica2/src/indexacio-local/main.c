@@ -79,13 +79,6 @@ int main(int argc, char **argv)
   return 0;
 }
 
-void insertarPalabras(List ** hash_table, char ** palabras, int len) {
-  char * palabra;
-  for (int i = 0; i < len; i++) {
-    insertarPalabra(hash_table, palabras[i]);
-  }
-}
-
 void insertarPalabra(List ** hash_table, char * palabra) {
   int hash = hashWord(palabra);
   List * list;
