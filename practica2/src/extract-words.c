@@ -11,18 +11,24 @@
 */
 char* extractWord(FILE* fileToSeparate) {
   int tmpWordCount = 0, isEndWord = FALSE;
-  char tmpChar;
+  char tmpChar = ' ';
   char* tmpWord = calloc(MAXCHAR, sizeof(char));
 
   while (isEndWord == FALSE && tmpChar != EOF) {
     tmpChar = (char)fgetc(fileToSeparate);
     switch(categorizeCharacter(tmpChar)){
       case -1 : // Dump Word
-        tmpWord = calloc(MAXCHAR, sizeof(char)); tmpWordCount = 0; break;
+        free(tmpWord);
+        tmpWord = calloc(MAXCHAR, sizeof(char));
+        tmpWordCount = 0;
+        break;
       case 0 : // Add character
-        tmpWord[tmpWordCount++] = tmpChar; break; 
+        tmpWord[tmpWordCount++] = tmpChar;
+        break; 
       case 1 : // End word
-        isEndWord = TRUE; tmpWordCount = 0; break;
+        isEndWord = TRUE;
+        tmpWordCount = 0;
+        break;
     }
   }
   
