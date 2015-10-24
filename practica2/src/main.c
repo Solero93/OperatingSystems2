@@ -13,8 +13,8 @@
 void crearArbreDiccionari(RBTree * tree, FILE * fp) {
   RBData * treeData;
   char * buffer = (char*) malloc(sizeof(char) * MAXCHAR);
+  char * tmpChar;
   while (fscanf(fp, "%s", buffer) != EOF) {
-    char* tmpChar;
     tmpChar = (char*) malloc(sizeof(char) * MAXCHAR);
      
     strcpy(tmpChar, buffer);
@@ -32,6 +32,7 @@ void crearArbreDiccionari(RBTree * tree, FILE * fp) {
       
       insertNode(tree, treeData);
     }
+
   }
   free(buffer);
 }
@@ -125,6 +126,7 @@ int main(int argc, char ** argv) {
     clearTable(hash_table);
     fclose(currentFile);
   }
+  fclose(configFile);
   free(hash_table);
   deleteTree(tree);
   free(tree);
