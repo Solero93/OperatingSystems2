@@ -37,6 +37,7 @@
 
 static void freeRBData(RBData *data)
 {
+  free(data->key);
   free(data);
 }
 
