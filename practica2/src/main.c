@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -9,6 +10,11 @@
 #define MAXCHAR 100
 #define SIZE    100
 
+void lowerWord(char * word) {
+  for (int i = 0; word[i] != '\0'; i++) {
+    word[i] = tolower(word[i]);
+  }
+}
 
 void crearArbreDiccionari(RBTree * tree, FILE * fp) {
   RBData * treeData;
@@ -18,7 +24,7 @@ void crearArbreDiccionari(RBTree * tree, FILE * fp) {
     tmpChar = (char*) malloc(sizeof(char) * MAXCHAR);
 
     strcpy(tmpChar, buffer);
-
+    lowerWord(tmpChar);
     //toLowercase(tmpChar);
 
     //Search if the key is in the tree
