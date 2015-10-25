@@ -16,6 +16,7 @@ char* extractWord(FILE* fileToSeparate) {
 
   while (isEndWord == FALSE && tmpChar != EOF) {
     tmpChar = (char)fgetc(fileToSeparate);
+    tmpChar = (char) tolower(tmpChar);
     switch(categorizeCharacter(tmpChar)){
       case -1 : // Dump Word
         free(tmpWord);
@@ -24,15 +25,15 @@ char* extractWord(FILE* fileToSeparate) {
         break;
       case 0 : // Add character
         tmpWord[tmpWordCount++] = tmpChar;
-        break; 
+        break;
       case 1 : // End word
         isEndWord = TRUE;
         tmpWordCount = 0;
         break;
     }
   }
-  
-  if (tmpChar != EOF || strlen(tmpWord) > 0){
+
+  if (strlen(tmpWord) > 0){
     return tmpWord;
   } else {
     return NULL;
@@ -45,25 +46,21 @@ char* extractWord(FILE* fileToSeparate) {
     1 -> end current word
 */
 int categorizeCharacter(char character){
-  char tmpChar = tolower(character);
-  if (isalpha(tmpChar)) {
+  if (isalpha(character)) {
     return 0;
   }
-  else if (isdigit(tmpChar)) {
+  else if (isdigit(character)) {
     return -1;
   }
-  else if (ispunct(tmpChar)) {
-    if (tmpChar == '-') {
-      return 1;
-    }
-    else if (tmpChar == '\'') {
+  else if (ispunct(character)) {
+    if (character == '\'') {
       return 0;
     }
     else {
-      return -1;
+      return 1;
     }
   }
-  else if (isspace(tmpChar)) {
+  else if (isspace(character)) {
     return 1;
   }
   else {
