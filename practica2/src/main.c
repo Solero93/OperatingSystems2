@@ -43,13 +43,14 @@ void insertarAlGlobal(RBTree * tree, List ** hash_table) {
   RBData * treeData;
   for (int i = 0; i < SIZE; i++) {
     list = hash_table[i];
-    if (list != NULL) {
-      current = list->first;
-      while (current != NULL) {
-        treeData = findNode(tree, current->data->key);
+    current = list->first;
+    while (current != NULL) {
+      treeData = findNode(tree, current->data->key);
+      if (treeData != NULL)
         treeData->num += current->data->numTimes;
-        current = current->next;
-      }
+      else
+        printf("Weird word: %s\n", current->data->key);
+      current = current->next;
     }
   }
 }
@@ -73,10 +74,6 @@ void insertarPalabraAlHash(List ** hash_table, char * palabra) {
   List * list;
   ListData * list_data;
   list = hash_table[hash];
-  if (list == NULL) {
-    list = malloc(sizeof(List));
-    initList(list);
-  }
   list_data = findList(list, palabra);
   if (list_data == NULL) {
     list_data = malloc(sizeof(ListData));
@@ -88,19 +85,26 @@ void insertarPalabraAlHash(List ** hash_table, char * palabra) {
   }
 }
 
+List ** createHashTable(int size) {
+    List ** table = malloc(sizeof(List *) * size);
+    for (int i = 0; i < size; i++) {
+        table[i] = malloc(sizeof(List));
+        initList(table[i]);
+    }
+    return table;
+}
+
 void clearTable(List ** hash_table) {
   for(int i = 0; i < SIZE; i++) {
-    if (hash_table[i] != NULL) {
+    if (hash_table[i]->first != NULL) {
       deleteList(hash_table[i]);
-      free(hash_table[i]);
-      hash_table[i] = NULL;
     }
   }
 }
 
 
 int main(int argc, char ** argv) {
-  List ** hash_table = calloc(SIZE, sizeof(List *));
+  List ** hash_table = createHashTable(SIZE);
   RBTree * tree = malloc(sizeof(RBTree));
   FILE * configFile;
   FILE * currentFile;
