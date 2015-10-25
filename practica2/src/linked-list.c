@@ -1,7 +1,7 @@
 /**
  *
- * Linked-list implementation. 
- * 
+ * Linked-list implementation.
+ *
  * This is an implementation of a simple linked-list. A minimal
  * set of necessary functions have been included.
  *
@@ -28,7 +28,9 @@
 
 static void freeListData(ListData *data)
 {
-  free(data); 
+  // Key is a char*, so we must free it
+  free(data->key);
+  free(data);
 }
 
 /**
@@ -62,14 +64,14 @@ static int compEQ(TYPE_LIST_KEY key1, TYPE_LIST_KEY key2)
 }
 
 /**
- * 
+ *
  * Please do not change the code below unless you really know what you are
  * doing.
  *
  */
 
 /**
- * 
+ *
  * Initialize an empty list
  *
  */
@@ -81,7 +83,7 @@ void initList(List *l)
 }
 
 /**
- * 
+ *
  * Insert data in the list.  This function does not perform a copy of data
  * when inserting it in the list, it rather creates a list item and makes
  * this item point to the data. Thus, the contents of data should not be
@@ -113,7 +115,7 @@ void insertList(List *l, ListData *data)
 }
 
 /**
- * 
+ *
  * Find item containing the specified key. Returns the data
  * that it points to (not the item itself).
  *
@@ -137,7 +139,7 @@ ListData *findList(List *l, TYPE_LIST_KEY key)
 }
 
 /**
- * 
+ *
  * Deletes the first item of the list. The data to which
  * the deleted item points to also is deleted.
  *
@@ -159,8 +161,8 @@ void deleteFirstList(List *l)
 }
 
 /**
- * 
- * Deletes a list including the data to which their 
+ *
+ * Deletes a list including the data to which their
  * items point to.
  *
  */
@@ -184,7 +186,7 @@ void deleteList(List *l)
 }
 
 /**
- * 
+ *
  * Dumps the contents of the list. Internally this function
  * called dumpListData which is user defined.
  *
@@ -204,4 +206,3 @@ void dumpList(List *l)
 
   printf("Total number of items: %d\n", l->numItems);
 }
-
