@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 /**
  * We include the linked-list.h header. Note the double
@@ -57,7 +58,7 @@ static int compEQ(TYPE_LIST_KEY key1, TYPE_LIST_KEY key2)
 
   rc = 0;
 
-  if (key1 == key2)
+  if (strcmp(key1, key2) == 0)
     rc = 1;
 
   return rc;
