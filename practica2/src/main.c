@@ -47,18 +47,20 @@ void insertarAlGlobal(RBTree * tree, List ** hash_table) {
   List * list;
   ListItem * current;
   RBData * treeData;
+  int tmp = 0;
   for (int i = 0; i < SIZE; i++) {
     list = hash_table[i];
     current = list->first;
     while (current != NULL) {
       treeData = findNode(tree, current->data->key);
-      if (treeData != NULL)
+      if (treeData != NULL) {
         treeData->num += current->data->numTimes;
-      else
-        printf("Weird word: %s\n", current->data->key);
+        tmp++;
+      }
       current = current->next;
     }
   }
+  printf("File has %d different words\n", tmp);
 }
 
 int hashWord(char* cadena) {
