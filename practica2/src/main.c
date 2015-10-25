@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <string.h> 
+#include <string.h>
 #include <stdlib.h>
 
 #include "linked-list.h"
@@ -16,20 +16,20 @@ void crearArbreDiccionari(RBTree * tree, FILE * fp) {
   char * tmpChar;
   while (fscanf(fp, "%s", buffer) != EOF) {
     tmpChar = (char*) malloc(sizeof(char) * MAXCHAR);
-     
+
     strcpy(tmpChar, buffer);
-     
+
     //toLowercase(tmpChar);
-     
+
     //Search if the key is in the tree
     treeData = findNode(tree, tmpChar);
-     
+
     if (treeData == NULL) {
       //If the key is not in the tree, allocate memory for the data and insert in the tree
       treeData = malloc(sizeof(RBData));
       treeData->key = tmpChar;
       treeData->num = 1;
-      
+
       insertNode(tree, treeData);
     }
 
@@ -55,13 +55,15 @@ void insertarAlGlobal(RBTree * tree, List ** hash_table) {
 }
 
 int hashWord(char* cadena) {
-  int len = strlen(cadena) - 1; 
+  int len = strlen(cadena) - 1;
   int sum = 0;
   int seed = 131;
   for(int i = 0; i < len; i++)
     sum = sum * seed + (int)cadena[i];
 
   int hash = sum % SIZE;
+  if (hash < 0)
+    return SIZE + hash;
 
   return hash;
 }
@@ -118,6 +120,7 @@ int main(int argc, char ** argv) {
   fscanf(configFile, "%d", &numFiles);
   for (int i = 0; i < numFiles; i++) {
     fscanf(configFile, "%s", filename);
+    printf("reading file: %s\n", filename);
     currentFile = fopen(filename, "r");
     while ((word = extractWord(currentFile)) != NULL) {
       insertarPalabraAlHash(hash_table, word);
@@ -131,5 +134,3 @@ int main(int argc, char ** argv) {
   deleteTree(tree);
   free(tree);
 }
-
-
