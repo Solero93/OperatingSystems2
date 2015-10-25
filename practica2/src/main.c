@@ -88,6 +88,8 @@ void insertarPalabraAlHash(List ** hash_table, char * palabra) {
     insertList(list, list_data);
   } else {
     list_data->numTimes++;
+    // Since we already have it we don't need to save it
+    free(palabra);
   }
 }
 
