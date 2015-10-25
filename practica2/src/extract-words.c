@@ -27,15 +27,19 @@ char* extractWord(FILE* fileToSeparate) {
         tmpWord[tmpWordCount++] = tmpChar;
         break;
       case 1 : // End word
+        // If it's a false positive (the only thing in tmpWord is space), we ignore it
+        if (tmpWordCount == 0)
+           break;
         isEndWord = TRUE;
         tmpWordCount = 0;
         break;
     }
   }
 
-  if (strlen(tmpWord) > 0){
+  if (tmpChar != EOF || tmpWordCount > 0) {
     return tmpWord;
   } else {
+    free(tmpWord);
     return NULL;
   }
 }
