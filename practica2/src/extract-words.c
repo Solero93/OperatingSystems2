@@ -18,16 +18,16 @@ char* extractWord(FILE* fileToSeparate) {
     tmpChar = (char)fgetc(fileToSeparate);
     tmpChar = (char) tolower(tmpChar);
     switch(categorizeCharacter(tmpChar)){
-      case -1 : // Dump Word
+      case DUMP_WORD :
         free(tmpWord);
         tmpWord = calloc(MAXCHAR, sizeof(char));
         tmpWordCount = 0;
         break;
-      case 0 : // Add character
+      case ADD_CHARACTER :
         tmpWord[tmpWordCount++] = tmpChar;
         break;
-      case 1 : // End word
-        // If it's a false positive (the only thing in tmpWord is space), we ignore it
+      case FINISH_WORD :
+        // If it's a false positive (there are no letters in tmpWord), we ignore it
         if (tmpWordCount == 0)
            break;
         isEndWord = TRUE;
@@ -36,6 +36,11 @@ char* extractWord(FILE* fileToSeparate) {
     }
   }
 
+/* This is subtle, let's break it down, we first see if we reached the end of
+   the file, if we haven't then it means we have a word (isEndWord is TRUE).
+   Otherwise, it means we reached the end of the file, so we see if we have extracted
+   anything until now.
+ */
   if (tmpChar != EOF || tmpWordCount > 0) {
     return tmpWord;
   } else {
@@ -44,30 +49,27 @@ char* extractWord(FILE* fileToSeparate) {
   }
 }
 /*
-  Function that returns
-    -1 -> dump current word
-    0 -> continue with word
-    1 -> end current word
+  Function that tells us what to do with the characterh
 */
 int categorizeCharacter(char character){
   if (isalpha(character)) {
-    return 0;
+    return ADD_CHARACTER;
   }
   else if (isdigit(character)) {
-    return -1;
+    return DUMP_WORD;
   }
   else if (ispunct(character)) {
     if (character == '\'') {
-      return 0;
+      return ADD_CHARACTER;
     }
     else {
-      return 1;
+      return FINISH_WORD;
     }
   }
   else if (isspace(character)) {
-    return 1;
+    return FINISH_WORD;
   }
   else {
-    return -1;
+    return DUMP_WORD;
   }
 }
