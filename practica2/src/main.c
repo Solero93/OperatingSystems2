@@ -6,9 +6,48 @@
 #include "linked-list.h"
 #include "red-black-tree.h"
 #include "extract-words.h"
+#include "main.h"
 
 #define MAXCHAR 100
 #define SIZE    100
+
+int main(int argc, char ** argv) {
+  List ** hash_table = createHashTable(SIZE);
+  RBTree * tree = malloc(sizeof(RBTree));
+  FILE * configFile;
+  FILE * currentFile;
+  char * filename = malloc(sizeof(char) * MAXCHAR);
+  char * word;
+  int numFiles;
+  if (argc != 3) {
+    printf("Usage: <dictionary> <cfg file>\n");
+    exit(1);
+  }
+  initTree(tree);
+  configFile = fopen(argv[1], "r");
+  crearArbreDiccionari(tree, configFile);
+  fclose(configFile);
+  // We now have the dictionary created, let's now start with the counting
+  configFile = fopen(argv[2], "r");
+  fscanf(configFile, "%d", &numFiles);
+  for (int i = 0; i < numFiles; i++) {
+    fscanf(configFile, "%s", filename);
+    printf("reading file: %s\n", filename);
+    currentFile = fopen(filename, "r");
+    while ((word = extractWord(currentFile)) != NULL) {
+      insertarPalabraAlHash(hash_table, word);
+    }
+    insertarAlGlobal(tree, hash_table);
+    clearTable(hash_table);
+    fclose(currentFile);
+  }
+  free(filename);
+  deleteTable(hash_table);
+  fclose(configFile);
+  free(hash_table);
+  deleteTree(tree);
+  free(tree);
+}
 
 void lowerWord(char * word) {
   for (int i = 0; word[i] != '\0'; i++) {
@@ -116,43 +155,4 @@ void deleteTable(List ** table) {
     for (int i = 0; i < SIZE; i++) {
         free(table[i]);
     }
-}
-
-
-int main(int argc, char ** argv) {
-  List ** hash_table = createHashTable(SIZE);
-  RBTree * tree = malloc(sizeof(RBTree));
-  FILE * configFile;
-  FILE * currentFile;
-  char * filename = malloc(sizeof(char) * MAXCHAR);
-  char * word;
-  int numFiles;
-  if (argc != 3) {
-    printf("Usage: <dictionary> <cfg file>\n");
-    exit(1);
-  }
-  initTree(tree);
-  configFile = fopen(argv[1], "r");
-  crearArbreDiccionari(tree, configFile);
-  fclose(configFile);
-  // We now have the dictionary created, let's now start with the counting
-  configFile = fopen(argv[2], "r");
-  fscanf(configFile, "%d", &numFiles);
-  for (int i = 0; i < numFiles; i++) {
-    fscanf(configFile, "%s", filename);
-    printf("reading file: %s\n", filename);
-    currentFile = fopen(filename, "r");
-    while ((word = extractWord(currentFile)) != NULL) {
-      insertarPalabraAlHash(hash_table, word);
-    }
-    insertarAlGlobal(tree, hash_table);
-    clearTable(hash_table);
-    fclose(currentFile);
-  }
-  free(filename);
-  deleteTable(hash_table);
-  fclose(configFile);
-  free(hash_table);
-  deleteTree(tree);
-  free(tree);
 }

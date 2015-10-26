@@ -4,6 +4,11 @@
  *
  *
  */
+
+// Standard header collision detection
+#ifndef RED_BLACK_TREE_HEADER
+#define RED_BLACK_TREE_HEADER 1
+
 #define TYPE_RBTREE_KEY char*
 
 /**
@@ -69,3 +74,4 @@ int getNumNodes(RBTree *tree);
 void insertNode(RBTree *tree, RBData *data);
 RBData *findNode(RBTree *tree, TYPE_RBTREE_KEY key);
 void deleteTree(RBTree *tree);
+#endif

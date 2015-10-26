@@ -1,3 +1,6 @@
+#ifndef EXTRACT_WORDS_HEADER
+#define EXTRACT_WORDS_HEADER 1
+
 #ifndef MAXCHAR
 #define MAXCHAR 100
 #endif
@@ -13,3 +16,4 @@
 
 char* extractWord(FILE* fileToSeparate);
 int categorizeCharacter(char character);
+#endif

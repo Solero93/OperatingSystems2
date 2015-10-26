@@ -11,6 +11,10 @@
  *
  */
 
+// Standard header
+#ifndef LINKED_LIST_HEADER
+#define LINKED_LIST_HEADER 1
+
 /**
  *
  * The TYPE_LIST_KEY is used to define the type of the primary
@@ -75,3 +79,4 @@ ListData *findList(List *l, TYPE_LIST_KEY key);
 void deleteFirstList(List *l);
 void deleteList(List *l);
 void dumpList(List *l);
+#endif
