@@ -23,24 +23,31 @@ int main(int argc, char ** argv) {
     printf("Usage: <dictionary> <cfg file>\n");
     exit(1);
   }
+  // We start creating our dictionary tree
   initTree(tree);
   configFile = fopen(argv[1], "r");
   crearArbreDiccionari(tree, configFile);
   fclose(configFile);
-  // We now have the dictionary created, let's now start with the counting
+  // We now have the dictionary created, let's now start with the word counting
   configFile = fopen(argv[2], "r");
+  // First line of the .cfg file is the number of files
   fscanf(configFile, "%d", &numFiles);
   for (int i = 0; i < numFiles; i++) {
+    // One file path per line
     fscanf(configFile, "%s", filename);
     printf("reading file: %s\n", filename);
     currentFile = fopen(filename, "r");
+    // We read words until we're done with the file
     while ((word = extractWord(currentFile)) != NULL) {
       insertarPalabraAlHash(hash_table, word);
     }
+    // And now we just enter the numbers into the tree and reset the table
     insertarAlGlobal(tree, hash_table);
     clearTable(hash_table);
     fclose(currentFile);
   }
+  // We could very well not do this as when we finish the kernel will cleanup
+  // after us and we're not doing anything else with our data
   free(filename);
   deleteTable(hash_table);
   fclose(configFile);
@@ -49,12 +56,18 @@ int main(int argc, char ** argv) {
   free(tree);
 }
 
-void lowerWord(char * word) {
+/*
+ Function that lowercases a word in-place
+ */
+void lowercaseWord(char * word) {
   for (int i = 0; word[i] != '\0'; i++) {
     word[i] = tolower(word[i]);
   }
 }
 
+/*
+ Given a file and an empty tree we insert each word of the file into the tree
+ */
 void crearArbreDiccionari(RBTree * tree, FILE * fp) {
   RBData * treeData;
   char * buffer = (char*) malloc(sizeof(char) * MAXCHAR);
@@ -63,8 +76,7 @@ void crearArbreDiccionari(RBTree * tree, FILE * fp) {
     tmpChar = (char*) malloc(sizeof(char) * MAXCHAR);
 
     strcpy(tmpChar, buffer);
-    lowerWord(tmpChar);
-    //toLowercase(tmpChar);
+    lowercaseWord(tmpChar);
 
     //Search if the key is in the tree
     treeData = findNode(tree, tmpChar);
@@ -79,6 +91,7 @@ void crearArbreDiccionari(RBTree * tree, FILE * fp) {
     }
 
   }
+  // Let's not forget we used a buffer :D
   free(buffer);
 }
 
@@ -86,22 +99,24 @@ void insertarAlGlobal(RBTree * tree, List ** hash_table) {
   List * list;
   ListItem * current;
   RBData * treeData;
-  int tmp = 0;
+  int differentWords = 0;
+  // We now scan through the whole hash_table and insert all words
   for (int i = 0; i < SIZE; i++) {
     list = hash_table[i];
     current = list->first;
     while (current != NULL) {
       treeData = findNode(tree, current->data->key);
-      if (treeData != NULL) {
+      if (treeData != NULL) { // If it's null it's a word not in the dictionary, so we avoid it
         treeData->num += current->data->numTimes;
-        tmp++;
+        differentWords++;
       }
       current = current->next;
     }
   }
-  printf("File has %d different words\n", tmp);
+  printf("File has %d different words\n", differentWords);
 }
 
+/* Evil string hash magic */
 int hashWord(char* cadena) {
   int len = strlen(cadena) - 1;
   int sum = 0;
@@ -110,12 +125,13 @@ int hashWord(char* cadena) {
     sum = sum * seed + (int)cadena[i];
 
   int hash = sum % SIZE;
-  if (hash < 0)
+  if (hash < 0) // The hash might be negative, so we offset it to a positive number
     return SIZE + hash;
 
   return hash;
 }
 
+/* Function to insert a word into the hash table */
 void insertarPalabraAlHash(List ** hash_table, char * palabra) {
   int hash = hashWord(palabra);
   List * list;
@@ -133,6 +149,8 @@ void insertarPalabraAlHash(List ** hash_table, char * palabra) {
     free(palabra);
   }
 }
+
+/* Name says it all for these functions */
 
 List ** createHashTable(int size) {
     List ** table = malloc(sizeof(List *) * size);
