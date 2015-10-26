@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include <linked-list.h>
-#include <red-black-tree.h>
+#include "linked-list.h"
+#include "red-black-tree.h"
 
 void lowerWord(char * word);
 void crearArbreDiccionari(RBTree * tree, FILE * fp);
