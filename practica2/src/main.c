@@ -125,7 +125,7 @@ void insertarPalabraAlHash(List ** hash_table, char * palabra) {
   if (list_data == NULL) {
     list_data = malloc(sizeof(ListData));
     list_data->key = palabra;
-    list_data->numTimes++;
+    list_data->numTimes = 1;
     insertList(list, list_data);
   } else {
     list_data->numTimes++;
