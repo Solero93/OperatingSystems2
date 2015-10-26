@@ -1,6 +1,6 @@
 /**
  *
- * Red-black tree header 
+ * Red-black tree header
  *
  *
  */
@@ -12,7 +12,7 @@
  * structure according to your needs.  In order to make this library work, you
  * also need to adapt the functions compLT, compEQ and freeRBData. For the
  * current implementation the "key" member is used to index data within the
- * tree. 
+ * tree.
  *
  */
 
@@ -20,7 +20,7 @@ typedef struct RBData_
 {
   // The variable used to index the tree has to be called "key".
   // The type may be any you want (float, char *, etc)
-  TYPE_RBTREE_KEY key;     
+  TYPE_RBTREE_KEY key;
 
   // This is the additional information that will be stored
   // within the structure. You may adapt it to your needs:
@@ -30,7 +30,7 @@ typedef struct RBData_
 
 /**
  *
- * The node structure 
+ * The node structure
  *
  */
 
@@ -67,5 +67,5 @@ typedef struct RBTree_ {
 void initTree(RBTree *tree);
 int getNumNodes(RBTree *tree);
 void insertNode(RBTree *tree, RBData *data);
-RBData *findNode(RBTree *tree, TYPE_RBTREE_KEY key); 
+RBData *findNode(RBTree *tree, TYPE_RBTREE_KEY key);
 void deleteTree(RBTree *tree);

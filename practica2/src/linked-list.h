@@ -1,8 +1,8 @@
 /**
  *
- * Linked-list header 
- * 
- * Include this file in order to be able to call the 
+ * Linked-list header
+ *
+ * Include this file in order to be able to call the
  * functions available in linked-list.c. We include
  * here only those information we want to make visible
  * to other files.
@@ -12,9 +12,9 @@
  */
 
 /**
- * 
+ *
  * The TYPE_LIST_KEY is used to define the type of the primary
- * key used to index data in the list. 
+ * key used to index data in the list.
  *
  */
 
@@ -25,7 +25,7 @@
  * This structure holds the information to be stored at each list item.  Change
  * this structure according to your needs.  In order to make this library work,
  * you also need to adapt the functions compEQ and freeListData. For the
- * current implementation the "key" member is used search within the list. 
+ * current implementation the "key" member is used search within the list.
  *
  */
 
@@ -41,7 +41,7 @@ typedef struct ListData_ {
 
 
 /**
- * 
+ *
  * The item structure
  *
  */
@@ -52,7 +52,7 @@ typedef struct ListItem_ {
 } ListItem;
 
 /**
- * 
+ *
  * The list structure
  *
  */
@@ -75,4 +75,3 @@ ListData *findList(List *l, TYPE_LIST_KEY key);
 void deleteFirstList(List *l);
 void deleteList(List *l);
 void dumpList(List *l);
-

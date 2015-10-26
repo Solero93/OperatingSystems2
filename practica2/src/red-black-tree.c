@@ -1,7 +1,7 @@
 /**
  *
- * Red-black tree implementation. 
- * 
+ * Red-black tree implementation.
+ *
  * Binary search trees work best when they are balanced or the path length from
  * root to any leaf is within some bounds. The red-black tree algorithm is a
  * method for balancing trees. The name derives from the fact that each node is
@@ -31,7 +31,7 @@
  * Free data element. The user should adapt this function to their needs.  This
  * function is called internally by deleteNode and is used to free the
  * dynamic memory that is stored inside RBData. The memory is allocated
- * by the user code, just before the node is inserted in the tree. 
+ * by the user code, just before the node is inserted in the tree.
  *
  */
 
@@ -45,7 +45,7 @@ static void freeRBData(RBData *data)
  *
  * Compares if key1 is less than key2. Should return 1 (true) if condition
  * is satisfied, 0 (false) otherwise.
- * 
+ *
  * NOTE: We assume TYPE_RBTREE_KEY to be a (char *) since that is the required data type for the assignment
  *
  */
@@ -55,7 +55,7 @@ static int compLT(TYPE_RBTREE_KEY key1, TYPE_RBTREE_KEY key2)
 
   rc = 0;
 
-  
+
   if (strcmp(key1, key2) < 0)
     rc = 1;
 
@@ -67,9 +67,9 @@ static int compLT(TYPE_RBTREE_KEY key1, TYPE_RBTREE_KEY key2)
  * Compares if key1 is equal to key2. Should return 1 (true) if condition
  * is satisfied, 0 (false) otherwise.
  *
- * 
+ *
  * NOTE: We assume TYPE_RBTREE_KEY to be a (char *) since that is the required data type for the assignment
- * 
+ *
  */
 static int compEQ(TYPE_RBTREE_KEY key1, TYPE_RBTREE_KEY key2)
 {
@@ -84,7 +84,7 @@ static int compEQ(TYPE_RBTREE_KEY key1, TYPE_RBTREE_KEY key2)
 }
 
 /**
- * 
+ *
  * PLEASE DO NOT CHANGE THE CODE BELOW UNLESS YOU REALLY KNOW WHAT YOU ARE
  * DOING.
  *
@@ -96,7 +96,7 @@ static Node sentinel = { NIL, NIL, 0, BLACK, NULL};
 /**
  *
  * Initialize the tree.
- * 
+ *
  *
  */
 
@@ -151,7 +151,7 @@ static void rotateLeft(RBTree *tree, Node *x) {
 }
 
 /**
- *  
+ *
  *  Rotate node x to right. Should not be called directly by the user. This
  *  function is used internally by other functions.
  *
@@ -180,7 +180,7 @@ static void rotateRight(RBTree *tree, Node *x) {
   if (x != NIL) x->parent = y;
 }
 
-/** 
+/**
  *
  * Maintain Red-Black tree balance  after inserting node x. Should not be
  * called directly by the user. This function is used internally by other
@@ -243,7 +243,7 @@ static void insertFixup(RBTree *tree, Node *x) {
 }
 
 /**
- *  
+ *
  * Allocate node for data and insert in tree. This function does not perform a
  * copy of data when inserting it in the tree, it rather creates a node and
  * makes this node point to the data. Thus, the contents of data should not be
@@ -274,7 +274,7 @@ void insertNode(RBTree *tree, RBData *data) {
   }
 
   /* Note that the data is not copied. Just the pointer
-     is assigned. This means that the pointer to the 
+     is assigned. This means that the pointer to the
      data should not be overwritten after calling this
      function. */
 
@@ -322,7 +322,7 @@ RBData *findNode(RBTree *tree, TYPE_RBTREE_KEY key) {
 
 /**
  *
- *  Function used to delete a tree. Do not call directly. 
+ *  Function used to delete a tree. Do not call directly.
  *
  */
 
@@ -342,7 +342,7 @@ static void deleteTreeRecursive(Node *x)
 /**
  *
  *  Delete a tree. All the nodes and all the data pointed to by
- *  the tree is deleted. 
+ *  the tree is deleted.
  *
  */
 
@@ -353,5 +353,3 @@ void deleteTree(RBTree *tree)
 
   tree->numNodes = 0;
 }
-
-
