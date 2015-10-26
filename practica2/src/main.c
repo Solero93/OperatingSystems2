@@ -112,6 +112,12 @@ void clearTable(List ** hash_table) {
   }
 }
 
+void deleteTable(List ** table) {
+    for (int i = 0; i < SIZE; i++) {
+        free(table[i]);
+    }
+}
+
 
 int main(int argc, char ** argv) {
   List ** hash_table = createHashTable(SIZE);
@@ -143,6 +149,8 @@ int main(int argc, char ** argv) {
     clearTable(hash_table);
     fclose(currentFile);
   }
+  free(filename);
+  deleteTable(hash_table);
   fclose(configFile);
   free(hash_table);
   deleteTree(tree);
