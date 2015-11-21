@@ -42,7 +42,7 @@ int main(int argc, char ** argv) {
       insertarPalabraAlHash(hash_table, word);
     }
     // And now we just enter the numbers into the tree and reset the table
-    insertarAlGlobal(tree, hash_table);
+    insertarAlGlobal(tree, hash_table, filename);
     clearTable(hash_table);
     fclose(currentFile);
   }
@@ -86,6 +86,7 @@ void crearArbreDiccionari(RBTree * tree, FILE * fp) {
       treeData = malloc(sizeof(RBData));
       treeData->key = tmpChar;
       treeData->num = 1;
+      treeData->occurrences = malloc(sizeof(List));
 
       insertNode(tree, treeData);
     }
@@ -95,7 +96,7 @@ void crearArbreDiccionari(RBTree * tree, FILE * fp) {
   free(buffer);
 }
 
-void insertarAlGlobal(RBTree * tree, List ** hash_table) {
+void insertarAlGlobal(RBTree * tree, List ** hash_table, char * filename) {
   List * list;
   ListItem * current;
   RBData * treeData;
@@ -108,6 +109,9 @@ void insertarAlGlobal(RBTree * tree, List ** hash_table) {
       treeData = findNode(tree, current->data->key);
       if (treeData != NULL) { // If it's null it's a word not in the dictionary, so we avoid it
         treeData->num += current->data->numTimes;
+        ListData * occurrences = malloc(sizeof(ListData));
+        occurrences->key = filename;
+        occurrences->numTimes = current->data->numTimes;
         differentWords++;
       }
       current = current->next;

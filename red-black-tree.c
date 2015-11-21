@@ -38,6 +38,8 @@
 static void freeRBData(RBData *data)
 {
   free(data->key);
+  deleteList(data->occurrences);
+  free(data->occurrences);
   free(data);
 }
 

@@ -4,7 +4,7 @@
 
 void lowerWord(char * word);
 void crearArbreDiccionari(RBTree * tree, FILE * fp);
-void insertarAlGlobal(RBTree * tree, List ** hash_table);
+void insertarAlGlobal(RBTree * tree, List ** hash_table, char * filename);
 int hashWord(char* cadena);
 void insertarPalabraAlHash(List ** hash_table, char * palabra);
 List ** createHashTable(int size);

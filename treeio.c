@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "treeio.h"
+#include "linked-list.h"
 
 RBTree * readTree(char * filename) {
     FILE* fp = fopen(filename, "r");
@@ -22,6 +23,7 @@ RBTree * readTree(char * filename) {
         RBData* data = malloc(sizeof(RBData));
         data->key = word;
         data->num = wordCount;
+        data->occurrences = readList(fp);
         insertNode(tree, data);
     }
     fclose(fp);
@@ -51,4 +53,7 @@ void saveTreeData(FILE * fp, RBData * data) {
     fwrite(&len, sizeof(int), 1, fp);
     fwrite(data->key, sizeof(char), len, fp);
     fwrite(&data->num, sizeof(int), 1, fp);
+    // Save the list
+    List * list = data->occurrences;
+    saveList(fp, list);
 }

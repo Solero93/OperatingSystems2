@@ -1,3 +1,4 @@
+#include "linked-list.h"
 /**
  *
  * Red-black tree header
@@ -31,6 +32,7 @@ typedef struct RBData_
   // within the structure. You may adapt it to your needs:
   // add or remove elements as you need.
   int num;
+  List* occurrences;
 } RBData;
 
 /**
