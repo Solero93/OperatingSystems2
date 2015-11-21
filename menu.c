@@ -1,11 +1,10 @@
 #include <stdio.h>
 #include "menu.h"
 #include "treeio.h"
-//#include "graph.h"
-
-RBTree* tree;
+#include "graph.h"
 
 void showMenu(){
+    RBTree* tree;
     int choice;
     char tmp1[200], tmp2[200];
     do{
@@ -29,7 +28,11 @@ void showMenu(){
             case 2:
                 printf("Enter the filename to save: ");
                 scanf("%s", tmp1);
-                saveTree(tmp1, tree);
+                if (tree==NULL){
+                    printf("No tree created yet. Create one and try to save it afterwise.")
+                } else {
+                    saveTree(tmp1, tree);
+                }
                 break;
             case 3:
                 printf("Enter the filename to load: ");
@@ -39,7 +42,6 @@ void showMenu(){
             case 4:
                 printf("Enter a word to analyze: ");
                 scanf("%s", tmp1);
-
                 //drawGraph(tmp1);
                 break;
             case 5:
@@ -52,6 +54,7 @@ void showMenu(){
         printf("\n");
     } while (choice!=5);
     deleteTree(tree);
+    free(tree);
 }
 
 int main(){
