@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include "menu.h"
-#include "treeio.h"
+//#include "treeio.h"
 
-RBTree* tree;
+//RBTree* tree;
 
 void createTree(char dict[], char config[]){
     printf("%s %s", dict, config);
