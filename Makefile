@@ -1,7 +1,7 @@
 # This is the makefile that generates the executable
 
 # Files to compile
-FILES_C = main.c linked-list.c extract-words.c red-black-tree.c
+FILES_C = main.c linked-list.c extract-words.c red-black-tree.c hashutils.c strutils.c treeio.c menu.c
 
 # Exectuable to generate
 TARGET = practica2
