@@ -1,29 +1,13 @@
 #include <stdio.h>
 #include "menu.h"
-//#include "treeio.h"
+#include "treeio.h"
+//#include "graph.h"
 
-//RBTree* tree;
-
-void createTree(char dict[], char config[]){
-    printf("%s %s", dict, config);
-}
-
-void saveTree(char filename[]){
-    printf("%s", filename);
-}
-
-void loadTree(char filename[]){
-    printf("%s", filename);
-}
-
-void drawGraph(){
-    printf("Draw graph");
-}
+RBTree* tree;
 
 void showMenu(){
     int choice;
     char tmp1[200], tmp2[200];
-
     do{
         printf("\tTREE MENU:\n");
         printf("1. Create Tree\n");
@@ -38,25 +22,28 @@ void showMenu(){
             case 1:
                 printf("Enter the dictionary file: ");
                 scanf("%s", tmp1);
-                printf("Enther the configuration file: ");
+                printf("Enter the configuration file: ");
                 scanf("%s", tmp2);
-                createTree(tmp1, tmp2);
+                tree = createTree(tmp1, tmp2);
                 break;
             case 2:
                 printf("Enter the filename to save: ");
                 scanf("%s", tmp1);
-                saveTree(tmp1);
+                saveTree(tmp1, tree);
                 break;
             case 3:
                 printf("Enter the filename to load: ");
                 scanf("%s", tmp1);
-                loadTree(tmp1);
+                tree = readTree(tmp1);
                 break;
             case 4:
-                drawGraph();
+                printf("Enter a word to analyze: ");
+                scanf("%s", tmp1);
+
+                //drawGraph(tmp1);
                 break;
             case 5:
-                printf("Exit!");
+                printf("See ya!");
                 break;
             default:
                 printf("Wrong option, try again");
@@ -64,6 +51,7 @@ void showMenu(){
         }
         printf("\n");
     } while (choice!=5);
+    deleteTree(tree);
 }
 
 int main(){

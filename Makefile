@@ -4,7 +4,7 @@
 FILES_C = linked-list.c extract-words.c red-black-tree.c hashutils.c strutils.c treeio.c menu.c
 
 # Exectuable to generate
-TARGET = practica2
+TARGET = practica3
 
 # Compilation options
 CFLAGS = -std=c99 -Wall -Werror -g
