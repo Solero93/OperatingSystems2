@@ -58,7 +58,7 @@ int drawGraph(char* word, RBTree* tree){
     fprintf(gnuplot, "set title \'Probability graph\'\n");
     fprintf(gnuplot, "set yrange [0:%f]\n", occurrences[0].numTimes * 1.0 / (treeNode->num));
     fprintf(gnuplot, "set xrange [0:%d]\n", numItems);
-    fprintf(gnuplot, "plot \"appearances.data\" with lines\n");
+    fprintf(gnuplot, "plot \"appearances.data\" using 2:xticlabels(1) with lines\n");
     fflush(gnuplot);
     if (pclose(gnuplot) == -1){
         printf("Error closing pipes\n");
