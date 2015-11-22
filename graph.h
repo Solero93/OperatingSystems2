@@ -1,2 +1,5 @@
-int cmpFunc(const void * a, const void * b);
-void drawGraph(int numApps);//, List* appVector, char* word);
+#include "treeio.h"
+
+int cmpFunc(const void* a, const void* b);
+ListData* convertToIterable(List* list);
+int drawGraph(char* word, RBTree* tree);

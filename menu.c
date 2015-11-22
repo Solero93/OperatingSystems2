@@ -14,7 +14,7 @@ void showMenu(){
         printf("3. Read Tree\n");
         printf("4. Word appearance probability graph\n");
         printf("5. Exit\n");
-        printf("Enter your option: ");
+        printf("Enter your choices: ");
         scanf("%d", &choice);
 
         switch(choice){
@@ -29,7 +29,7 @@ void showMenu(){
                 printf("Enter the filename to save: ");
                 scanf("%s", tmp1);
                 if (tree==NULL){
-                    printf("No tree created yet. Create one and try to save it afterwise.")
+                    printf("No tree created yet. Create one and try to save it afterwise.");
                 } else {
                     saveTree(tmp1, tree);
                 }
@@ -40,9 +40,14 @@ void showMenu(){
                 tree = readTree(tmp1);
                 break;
             case 4:
-                printf("Enter a word to analyze: ");
-                scanf("%s", tmp1);
-                //drawGraph(tmp1);
+                if (tree==NULL){
+                    printf("No tree created yet. Create one and try to draw a graph afterwise.");
+                }
+                else {
+                    printf("Enter a word to analyze: ");
+                    scanf("%s", tmp1);
+                    drawGraph(tmp1, tree);
+                }
                 break;
             case 5:
                 printf("See ya!");
@@ -54,7 +59,6 @@ void showMenu(){
         printf("\n");
     } while (choice!=5);
     deleteTree(tree);
-    free(tree);
 }
 
 int main(){
