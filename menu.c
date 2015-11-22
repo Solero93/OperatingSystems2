@@ -4,7 +4,7 @@
 
 void showMenu(){
     RBTree* tree = NULL;
-    int choice;
+    char choice;
     char tmp1[100], tmp2[100];
     do{
         printf("\tTREE MENU:\n");
@@ -14,39 +14,39 @@ void showMenu(){
         printf("4. Word appearance probability graph\n");
         printf("5. Exit\n");
         printf("Enter your choices: ");
-        scanf("%d", &choice);
+        scanf(" %c", &choice);
 
         switch(choice){
-            case 1:
+            case '1':
                 printf("Enter the dictionary file: ");
                 scanf("%s", tmp1);
                 printf("Enter the configuration file: ");
                 scanf("%s", tmp2);
-                if (tree != NULL) {
+                /*if (tree != NULL) {
                     deleteTree(tree);
                     free(tree);
-                }
+                }*/
                 tree = createTree(tmp1, tmp2);
                 break;
-            case 2:
-                printf("Enter the filename to save: ");
-                scanf("%s", tmp1);
+            case '2':
                 if (tree==NULL){
                     printf("No tree created yet. Create one and try to save it afterwise.");
                 } else {
+                    printf("Enter the filename to save: ");
+                    scanf("%s", tmp1);
                     saveTree(tmp1, tree);
                 }
                 break;
-            case 3:
+            case '3':
                 printf("Enter the filename to load: ");
                 scanf("%s", tmp1);
-                if (tree != NULL) {
+                /*if (tree != NULL) {
                     deleteTree(tree);
                     free(tree);
-                }
+                }*/
                 tree = readTree(tmp1);
                 break;
-            case 4:
+            case '4':
                 if (tree==NULL){
                     printf("No tree created yet. Create one and try to draw a graph afterwise.");
                 }
@@ -56,7 +56,7 @@ void showMenu(){
                     drawGraph(tmp1, tree);
                 }
                 break;
-            case 5:
+            case '5':
                 printf("See ya!");
                 break;
             default:
@@ -64,7 +64,7 @@ void showMenu(){
                 break;
         }
         printf("\n");
-    } while (choice!=5);
+    } while (choice!='5');
     if (tree != NULL) {
         deleteTree(tree);
         free(tree);
