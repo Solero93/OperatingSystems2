@@ -1,12 +1,11 @@
 #include <stdio.h>
-#include "menu.h"
 #include "treeio.h"
 #include "graph.h"
 
 void showMenu(){
-    RBTree* tree;
+    RBTree* tree = NULL;
     int choice;
-    char tmp1[200], tmp2[200];
+    char tmp1[100], tmp2[100];
     do{
         printf("\tTREE MENU:\n");
         printf("1. Create Tree\n");
@@ -23,6 +22,8 @@ void showMenu(){
                 scanf("%s", tmp1);
                 printf("Enter the configuration file: ");
                 scanf("%s", tmp2);
+                if (tree != NULL)
+                    deleteTree(tree);
                 tree = createTree(tmp1, tmp2);
                 break;
             case 2:
@@ -37,6 +38,8 @@ void showMenu(){
             case 3:
                 printf("Enter the filename to load: ");
                 scanf("%s", tmp1);
+                if (tree != NULL)
+                    deleteTree(tree);
                 tree = readTree(tmp1);
                 break;
             case 4:
@@ -58,7 +61,10 @@ void showMenu(){
         }
         printf("\n");
     } while (choice!=5);
-    //deleteTree(tree);
+    if (tree != NULL) {
+        deleteTree(tree);
+        free(tree);
+    }
 }
 
 int main(){
