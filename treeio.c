@@ -54,7 +54,7 @@ static void createDictionaryTree(RBTree * tree, FILE * dictionary) {
       //If the key is not in the tree, allocate memory for the data and insert in the tree
       treeData = malloc(sizeof(RBData));
       treeData->key = tmpChar;
-      treeData->num = 1;
+      treeData->num = 0;
       treeData->occurrences = malloc(sizeof(List));
 
       insertNode(tree, treeData);
@@ -95,7 +95,6 @@ RBTree * createTree(char * dictionary, char * configFile) {
     RBTree * tree = malloc(sizeof(RBTree));
     FILE * fp;
     FILE * currentFile;
-    char * filename = malloc(sizeof(char) * MAXCHAR);
     char * word;
     int numFiles;
     // We start creating our dictionary tree
@@ -108,6 +107,8 @@ RBTree * createTree(char * dictionary, char * configFile) {
     // First line of the .cfg file is the number of files
     fscanf(fp, "%d", &numFiles);
     for (int i = 0; i < numFiles; i++) {
+        // Note, this is malloc'd here due to the filename being used in the list of occurrences
+        char * filename = malloc(sizeof(char) * MAXCHAR);
         // One file path per line
         fscanf(fp, "%s", filename);
         printf("reading file: %s\n", filename);
@@ -123,7 +124,6 @@ RBTree * createTree(char * dictionary, char * configFile) {
     }
     // We could very well not do this as when we finish the kernel will cleanup
     // after us and we're not doing anything else with our data
-    free(filename);
     deleteTable(hash_table);
     fclose(fp);
     free(hash_table);
