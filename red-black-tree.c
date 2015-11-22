@@ -26,6 +26,39 @@
 
 #include "red-black-tree.h"
 
+#include "linked-list.h"
+
+#define NIL &sentinel           /* all leafs are sentinels */
+static Node sentinel = { NIL, NIL, 0, BLACK, NULL};
+
+static void saveTreeData(FILE * fp, RBData * data) {
+    size_t len = strlen(data->key) + 1; // We need the NULL byte
+    fwrite(&len, sizeof(size_t), 1, fp);
+    fwrite(data->key, sizeof(char), len, fp);
+    fwrite(&data->num, sizeof(int), 1, fp);
+    // Save the list
+    List * list = data->occurrences;
+    saveList(fp, list);
+}
+
+static void saveTreeRecursively(FILE * fp, Node * node) {
+    if (node->right != NIL) {
+        saveTreeRecursively(fp, node->right);
+    }
+    if (node->left != NIL) {
+        saveTreeRecursively(fp, node->left);
+    }
+    saveTreeData(fp, node->data);
+}
+
+void saveTree(char * filename, RBTree * tree) {
+    FILE* fp = fopen(filename, "w");
+    if (tree->root != NIL) {
+        saveTreeRecursively(fp, tree->root);
+    }
+    fclose(fp);
+}
+
 /**
  *
  * Free data element. The user should adapt this function to their needs.  This
@@ -91,9 +124,6 @@ static int compEQ(TYPE_RBTREE_KEY key1, TYPE_RBTREE_KEY key2)
  * DOING.
  *
  */
-
-#define NIL &sentinel           /* all leafs are sentinels */
-static Node sentinel = { NIL, NIL, 0, BLACK, NULL};
 
 /**
  *
