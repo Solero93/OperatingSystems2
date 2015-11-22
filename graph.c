@@ -68,5 +68,6 @@ int drawGraph(char* word, RBTree* tree){
         printf("Error closing pipes\n");
         return -1;
     }
+    free(occurrences);
     return 0;
 }
