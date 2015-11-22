@@ -58,7 +58,7 @@ void showMenu(){
         }
         printf("\n");
     } while (choice!=5);
-    deleteTree(tree);
+    //deleteTree(tree);
 }
 
 int main(){

@@ -31,14 +31,13 @@ int drawGraph(char* word, RBTree* tree){
         printf("Word not found");
         return -1;
     }
-    ListData* occurrence = convertToIterable(treeNode->occurrences);
+    ListData* occurrences = convertToIterable(treeNode->occurrences);
     int numItems = treeNode->occurrences->numItems;
     if (treeNode->occurrences->first == NULL){
         printf("xorra");
     }
-    //printf("%s %d", treeNode->occurrences, numItems);
     
-    qsort(occurrence, numItems, sizeof(ListData), cmpFunc);
+    qsort(occurrences, numItems, sizeof(ListData), cmpFunc);
 
     FILE *data = fopen("appearances.data", "w+");
     if (!data){
@@ -47,8 +46,7 @@ int drawGraph(char* word, RBTree* tree){
     }
 
     for (int i=0; i<numItems; i++){
-        printf("%s %d",occurrence[i].key, occurrence[i].numTimes);
-        fprintf(data, "%s %f\n", occurrence[i].key, occurrence[i].numTimes * 1.0 / (treeNode->num));    
+        fprintf(data, "%s %f\n", occurrences[i].key, occurrences[i].numTimes * 1.0 / (treeNode->num));
     }
     fclose(data);
 
@@ -57,7 +55,10 @@ int drawGraph(char* word, RBTree* tree){
         printf("Error creating pipes\n");
         return -1;
     }
-    fprintf(gnuplot, "plot \"appearances.data\" with dots\n");
+    fprintf(gnuplot, "set title \'Probability graph\'\n");
+    fprintf(gnuplot, "set yrange [0:%f]\n", occurrences[0].numTimes * 1.0 / (treeNode->num));
+    fprintf(gnuplot, "set xrange [0:%d]\n", numItems);
+    fprintf(gnuplot, "plot \"appearances.data\" with lines\n");
     fflush(gnuplot);
     if (pclose(gnuplot) == -1){
         printf("Error closing pipes\n");
