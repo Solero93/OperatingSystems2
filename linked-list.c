@@ -31,7 +31,6 @@ static void freeListData(ListData *data)
 {
   // Key is a char*, so we must free it
   free(data->key);
-  free(data);
 }
 
 /**
