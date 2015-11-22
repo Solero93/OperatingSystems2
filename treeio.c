@@ -20,7 +20,7 @@ RBTree * readTree(char * filename) {
            The data is formatted as follows: strlen, string, number of times it appears
          */
         fread(&wordLength, sizeof(size_t), 1, fp);
-        word = malloc(sizeof(char) * wordLength);
+        word = calloc(sizeof(char), wordLength);
         fread(word, sizeof(char), wordLength, fp);
         fread(&wordCount, sizeof(int), 1, fp);
         // Process the data
