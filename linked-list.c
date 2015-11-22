@@ -219,7 +219,7 @@ void saveList(FILE * fp, List * list) {
 }
 
 List * readList(FILE * fp) {
-    int numElems;
+    int numElems = 0;
     fread(&numElems, sizeof(int), 1, fp);
     List* list = malloc(sizeof(List));
     initList(list);
