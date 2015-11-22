@@ -1,13 +1,13 @@
 # This is the makefile that generates the executable
 
 # Files to compile
-FILES_C = linked-list.c extract-words.c red-black-tree.c hashutils.c strutils.c treeio.c menu.c
+FILES_C = linked-list.c extract-words.c red-black-tree.c hashutils.c strutils.c treeio.c menu.c graph.c
 
 # Exectuable to generate
 TARGET = practica3
 
 # Compilation options
-CFLAGS = -std=c99 -Wall -Werror -g
+CFLAGS = -std=gnu99 -Wall -Werror -g
 
 # Linker options
 LFLAGS = -lm

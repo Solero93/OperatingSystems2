@@ -108,6 +108,7 @@ static void insertHashtableToTree(RBTree * tree, List ** hash_table, char * file
           ListData * occurrences = malloc(sizeof(ListData));
           occurrences->key = filename;
           occurrences->numTimes = current->data->numTimes;
+          insertList(treeData->occurrences, occurrences);
           differentWords++;
         }
         current = current->next;
