@@ -56,7 +56,7 @@ static void createDictionaryTree(RBTree * tree, FILE * dictionary) {
       treeData->key = tmpChar;
       treeData->num = 0;
       treeData->occurrences = malloc(sizeof(List));
-
+      initList(treeData->occurrences);
       insertNode(tree, treeData);
     }
 
