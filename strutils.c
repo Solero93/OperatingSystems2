@@ -7,6 +7,6 @@
  */
 void lowercaseWord(char * word) {
   for (int i = 0; word[i] != '\0'; i++) {
-    word[i] = tolower(word[i]);
+    word[i] = (char) tolower(word[i]);
   }
 }

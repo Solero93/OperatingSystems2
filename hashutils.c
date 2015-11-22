@@ -5,7 +5,7 @@
 
 /* Evil string hash magic */
 int hashWord(char* cadena) {
-  int len = strlen(cadena) - 1;
+  size_t len = strlen(cadena) - 1;
   int sum = 0;
   int seed = 131;
   for(int i = 0; i < len; i++)
