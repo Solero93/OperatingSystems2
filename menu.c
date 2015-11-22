@@ -22,8 +22,10 @@ void showMenu(){
                 scanf("%s", tmp1);
                 printf("Enter the configuration file: ");
                 scanf("%s", tmp2);
-                if (tree != NULL)
+                if (tree != NULL) {
                     deleteTree(tree);
+                    free(tree);
+                }
                 tree = createTree(tmp1, tmp2);
                 break;
             case 2:
@@ -38,8 +40,10 @@ void showMenu(){
             case 3:
                 printf("Enter the filename to load: ");
                 scanf("%s", tmp1);
-                if (tree != NULL)
+                if (tree != NULL) {
                     deleteTree(tree);
+                    free(tree);
+                }
                 tree = readTree(tmp1);
                 break;
             case 4:
