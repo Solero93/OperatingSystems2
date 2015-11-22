@@ -73,7 +73,6 @@ static void freeRBData(RBData *data)
   free(data->key);
   deleteList(data->occurrences);
   free(data->occurrences);
-  free(data);
 }
 
 /**
@@ -367,6 +366,7 @@ static void deleteTreeRecursive(Node *x)
     deleteTreeRecursive(x->left);
 
   freeRBData(x->data);
+  free(x->data);
   free(x);
 }
 

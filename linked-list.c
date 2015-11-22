@@ -155,6 +155,7 @@ void deleteFirstList(List *l)
   {
     l->first = tmp->next;
     freeListData(tmp->data);
+    free(tmp->data);
     free(tmp);
     l->numItems--;
   }
@@ -177,6 +178,7 @@ void deleteList(List *l)
   {
     next = current->next;
     freeListData(current->data);
+    free(current->data);
     free(current);
     current = next;
   }
