@@ -22,26 +22,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdarg.h>
 
 #include "red-black-tree.h"
 
-#include "linked-list.h"
-
 #define NIL &sentinel           /* all leafs are sentinels */
-static Node sentinel = { NIL, NIL, 0, BLACK, NULL};
+static Node sentinel = {NIL, NIL, 0, BLACK, NULL};
 
-static void saveTreeData(FILE * fp, RBData * data) {
+static void saveTreeData(FILE *fp, RBData *data) {
     size_t len = strlen(data->key) + 1; // We need the NULL byte
     fwrite(&len, sizeof(size_t), 1, fp);
     fwrite(data->key, sizeof(char), len, fp);
     fwrite(&data->num, sizeof(int), 1, fp);
     // Save the list
-    List * list = data->occurrences;
+    List *list = data->occurrences;
     saveList(fp, list);
 }
 
-static void saveTreeRecursively(FILE * fp, Node * node) {
+static void saveTreeRecursively(FILE *fp, Node *node) {
     if (node->right != NIL) {
         saveTreeRecursively(fp, node->right);
     }
@@ -51,8 +48,8 @@ static void saveTreeRecursively(FILE * fp, Node * node) {
     saveTreeData(fp, node->data);
 }
 
-void saveTree(char * filename, RBTree * tree) {
-    FILE* fp = fopen(filename, "w");
+void saveTree(char *filename, RBTree *tree) {
+    FILE *fp = fopen(filename, "w");
     if (tree->root != NIL) {
         fwrite(&tree->scannedFiles, sizeof(int), 1, fp);
         saveTreeRecursively(fp, tree->root);
@@ -69,11 +66,10 @@ void saveTree(char * filename, RBTree * tree) {
  *
  */
 
-static void freeRBData(RBData *data)
-{
-  free(data->key);
-  deleteList(data->occurrences);
-  free(data->occurrences);
+static void freeRBData(RBData *data) {
+    free(data->key);
+    deleteList(data->occurrences);
+    free(data->occurrences);
 }
 
 /**
@@ -84,17 +80,16 @@ static void freeRBData(RBData *data)
  * NOTE: We assume TYPE_RBTREE_KEY to be a (char *) since that is the required data type for the assignment
  *
  */
-static int compLT(TYPE_RBTREE_KEY key1, TYPE_RBTREE_KEY key2)
-{
-  int rc;
+static int compLT(TYPE_RBTREE_KEY key1, TYPE_RBTREE_KEY key2) {
+    int rc;
 
-  rc = 0;
+    rc = 0;
 
 
-  if (strcmp(key1, key2) < 0)
-    rc = 1;
+    if (strcmp(key1, key2) < 0)
+        rc = 1;
 
-  return rc;
+    return rc;
 }
 
 /**
@@ -106,16 +101,15 @@ static int compLT(TYPE_RBTREE_KEY key1, TYPE_RBTREE_KEY key2)
  * NOTE: We assume TYPE_RBTREE_KEY to be a (char *) since that is the required data type for the assignment
  *
  */
-static int compEQ(TYPE_RBTREE_KEY key1, TYPE_RBTREE_KEY key2)
-{
-  int rc;
+static int compEQ(TYPE_RBTREE_KEY key1, TYPE_RBTREE_KEY key2) {
+    int rc;
 
-  rc = 0;
+    rc = 0;
 
-  if (strcmp(key1, key2) == 0)
-    rc = 1;
+    if (strcmp(key1, key2) == 0)
+        rc = 1;
 
-  return rc;
+    return rc;
 }
 
 /**
@@ -132,10 +126,9 @@ static int compEQ(TYPE_RBTREE_KEY key1, TYPE_RBTREE_KEY key2)
  *
  */
 
-void initTree(RBTree *tree)
-{
-  tree->root = NIL;
-  tree->numNodes = 0;
+void initTree(RBTree *tree) {
+    tree->root = NIL;
+    tree->numNodes = 0;
 }
 
 /**
@@ -144,11 +137,10 @@ void initTree(RBTree *tree)
  *
  */
 
-int getNumNodes(RBTree *tree)
-{
-  int rv = tree->numNodes;
+int getNumNodes(RBTree *tree) {
+    int rv = tree->numNodes;
 
-  return rv;
+    return rv;
 }
 
 /**
@@ -160,26 +152,26 @@ int getNumNodes(RBTree *tree)
 
 static void rotateLeft(RBTree *tree, Node *x) {
 
-  Node *y = x->right;
+    Node *y = x->right;
 
-  /* establish x->right link */
-  x->right = y->left;
-  if (y->left != NIL) y->left->parent = x;
+    /* establish x->right link */
+    x->right = y->left;
+    if (y->left != NIL) y->left->parent = x;
 
-  /* establish y->parent link */
-  if (y != NIL) y->parent = x->parent;
-  if (x->parent) {
-    if (x == x->parent->left)
-      x->parent->left = y;
-    else
-      x->parent->right = y;
-  } else {
-    tree->root = y;
-  }
+    /* establish y->parent link */
+    if (y != NIL) y->parent = x->parent;
+    if (x->parent) {
+        if (x == x->parent->left)
+            x->parent->left = y;
+        else
+            x->parent->right = y;
+    } else {
+        tree->root = y;
+    }
 
-  /* link x and y */
-  y->left = x;
-  if (x != NIL) x->parent = y;
+    /* link x and y */
+    y->left = x;
+    if (x != NIL) x->parent = y;
 }
 
 /**
@@ -190,26 +182,26 @@ static void rotateLeft(RBTree *tree, Node *x) {
  */
 
 static void rotateRight(RBTree *tree, Node *x) {
-  Node *y = x->left;
+    Node *y = x->left;
 
-  /* establish x->left link */
-  x->left = y->right;
-  if (y->right != NIL) y->right->parent = x;
+    /* establish x->left link */
+    x->left = y->right;
+    if (y->right != NIL) y->right->parent = x;
 
-  /* establish y->parent link */
-  if (y != NIL) y->parent = x->parent;
-  if (x->parent) {
-    if (x == x->parent->right)
-      x->parent->right = y;
-    else
-      x->parent->left = y;
-  } else {
-    tree->root = y;
-  }
+    /* establish y->parent link */
+    if (y != NIL) y->parent = x->parent;
+    if (x->parent) {
+        if (x == x->parent->right)
+            x->parent->right = y;
+        else
+            x->parent->left = y;
+    } else {
+        tree->root = y;
+    }
 
-  /* link x and y */
-  y->right = x;
-  if (x != NIL) x->parent = y;
+    /* link x and y */
+    y->right = x;
+    if (x != NIL) x->parent = y;
 }
 
 /**
@@ -221,57 +213,57 @@ static void rotateRight(RBTree *tree, Node *x) {
  */
 
 static void insertFixup(RBTree *tree, Node *x) {
-  /* check Red-Black properties */
-  while (x != tree->root && x->parent->color == RED) {
-    /* we have a violation */
-    if (x->parent == x->parent->parent->left) {
-      Node *y = x->parent->parent->right;
-      if (y->color == RED) {
+    /* check Red-Black properties */
+    while (x != tree->root && x->parent->color == RED) {
+        /* we have a violation */
+        if (x->parent == x->parent->parent->left) {
+            Node *y = x->parent->parent->right;
+            if (y->color == RED) {
 
-	/* uncle is RED */
-	x->parent->color = BLACK;
-	y->color = BLACK;
-	x->parent->parent->color = RED;
-	x = x->parent->parent;
-      } else {
+                /* uncle is RED */
+                x->parent->color = BLACK;
+                y->color = BLACK;
+                x->parent->parent->color = RED;
+                x = x->parent->parent;
+            } else {
 
-	/* uncle is BLACK */
-	if (x == x->parent->right) {
-	  /* make x a left child */
-	  x = x->parent;
-	  rotateLeft(tree,x);
-	}
+                /* uncle is BLACK */
+                if (x == x->parent->right) {
+                    /* make x a left child */
+                    x = x->parent;
+                    rotateLeft(tree, x);
+                }
 
-	/* recolor and rotate */
-	x->parent->color = BLACK;
-	x->parent->parent->color = RED;
-	rotateRight(tree, x->parent->parent);
-      }
-    } else {
+                /* recolor and rotate */
+                x->parent->color = BLACK;
+                x->parent->parent->color = RED;
+                rotateRight(tree, x->parent->parent);
+            }
+        } else {
 
-      /* mirror image of above code */
-      Node *y = x->parent->parent->left;
-      if (y->color == RED) {
+            /* mirror image of above code */
+            Node *y = x->parent->parent->left;
+            if (y->color == RED) {
 
-	/* uncle is RED */
-	x->parent->color = BLACK;
-	y->color = BLACK;
-	x->parent->parent->color = RED;
-	x = x->parent->parent;
-      } else {
+                /* uncle is RED */
+                x->parent->color = BLACK;
+                y->color = BLACK;
+                x->parent->parent->color = RED;
+                x = x->parent->parent;
+            } else {
 
-	/* uncle is BLACK */
-	if (x == x->parent->left) {
-	  x = x->parent;
-	  rotateRight(tree, x);
-	}
-	x->parent->color = BLACK;
-	x->parent->parent->color = RED;
-	rotateLeft(tree,x->parent->parent);
-      }
+                /* uncle is BLACK */
+                if (x == x->parent->left) {
+                    x = x->parent;
+                    rotateRight(tree, x);
+                }
+                x->parent->color = BLACK;
+                x->parent->parent->color = RED;
+                rotateLeft(tree, x->parent->parent);
+            }
+        }
     }
-  }
-  tree->root->color = BLACK;
+    tree->root->color = BLACK;
 }
 
 /**
@@ -284,52 +276,52 @@ static void insertFixup(RBTree *tree, Node *x) {
  */
 
 void insertNode(RBTree *tree, RBData *data) {
-  Node *current, *parent, *x;
+    Node *current, *parent, *x;
 
-  /* Find where node belongs */
-  current = tree->root;
-  parent = 0;
-  while (current != NIL) {
-    if (compEQ(data->key, current->data->key)) {
-      printf("insertNode: trying to insert but primary key is already in tree.\n");
-      exit(1);
+    /* Find where node belongs */
+    current = tree->root;
+    parent = 0;
+    while (current != NIL) {
+        if (compEQ(data->key, current->data->key)) {
+            printf("insertNode: trying to insert but primary key is already in tree.\n");
+            exit(1);
+        }
+        parent = current;
+        current = compLT(data->key, current->data->key) ?
+                  current->left : current->right;
     }
-    parent = current;
-    current = compLT(data->key, current->data->key) ?
-      current->left : current->right;
-  }
 
-  /* setup new node */
-  if ((x = malloc (sizeof(*x))) == 0) {
-    printf ("insufficient memory (insertNode)\n");
-    exit(1);
-  }
+    /* setup new node */
+    if ((x = malloc(sizeof(*x))) == 0) {
+        printf("insufficient memory (insertNode)\n");
+        exit(1);
+    }
 
-  /* Note that the data is not copied. Just the pointer
-     is assigned. This means that the pointer to the
-     data should not be overwritten after calling this
-     function. */
+    /* Note that the data is not copied. Just the pointer
+       is assigned. This means that the pointer to the
+       data should not be overwritten after calling this
+       function. */
 
-  x->data = data;
+    x->data = data;
 
-  /* Copy remaining data */
-  x->parent = parent;
-  x->left = NIL;
-  x->right = NIL;
-  x->color = RED;
+    /* Copy remaining data */
+    x->parent = parent;
+    x->left = NIL;
+    x->right = NIL;
+    x->color = RED;
 
-  /* Insert node in tree */
-  if(parent) {
-    if(compLT(data->key, parent->data->key))
-      parent->left = x;
-    else
-      parent->right = x;
-  } else {
-    tree->root = x;
-  }
+    /* Insert node in tree */
+    if (parent) {
+        if (compLT(data->key, parent->data->key))
+            parent->left = x;
+        else
+            parent->right = x;
+    } else {
+        tree->root = x;
+    }
 
-  insertFixup(tree, x);
-  tree->numNodes++;
+    insertFixup(tree, x);
+    tree->numNodes++;
 }
 
 /**
@@ -341,15 +333,15 @@ void insertNode(RBTree *tree, RBData *data) {
 
 RBData *findNode(RBTree *tree, TYPE_RBTREE_KEY key) {
 
-  Node *current = tree->root;
-  while(current != NIL)
-    if(compEQ(key, current->data->key))
-      return (current->data);
-    else
-      current = compLT(key, current->data->key) ?
-	current->left : current->right;
+    Node *current = tree->root;
+    while (current != NIL)
+        if (compEQ(key, current->data->key))
+            return (current->data);
+        else
+            current = compLT(key, current->data->key) ?
+                      current->left : current->right;
 
-  return NULL;
+    return NULL;
 }
 
 /**
@@ -358,17 +350,16 @@ RBData *findNode(RBTree *tree, TYPE_RBTREE_KEY key) {
  *
  */
 
-static void deleteTreeRecursive(Node *x)
-{
-  if (x->right != NIL)
-    deleteTreeRecursive(x->right);
+static void deleteTreeRecursive(Node *x) {
+    if (x->right != NIL)
+        deleteTreeRecursive(x->right);
 
-  if (x->left != NIL)
-    deleteTreeRecursive(x->left);
+    if (x->left != NIL)
+        deleteTreeRecursive(x->left);
 
-  freeRBData(x->data);
-  free(x->data);
-  free(x);
+    freeRBData(x->data);
+    free(x->data);
+    free(x);
 }
 
 
@@ -379,11 +370,10 @@ static void deleteTreeRecursive(Node *x)
  *
  */
 
-void deleteTree(RBTree *tree)
-{
-  if (tree->root != NIL)
-    deleteTreeRecursive(tree->root);
+void deleteTree(RBTree *tree) {
+    if (tree->root != NIL)
+        deleteTreeRecursive(tree->root);
 
-  tree->numNodes = 0;
-  tree->scannedFiles = 0;
+    tree->numNodes = 0;
+    tree->scannedFiles = 0;
 }

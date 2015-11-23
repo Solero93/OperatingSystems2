@@ -14,6 +14,8 @@
 #define ADD_CHARACTER 0
 #define FINISH_WORD 1
 
-char* extractWord(FILE* fileToSeparate);
+char *extractWord(FILE *fileToSeparate);
+
 int categorizeCharacter(char character);
+
 #endif

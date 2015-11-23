@@ -22,17 +22,16 @@
  *
  */
 
-typedef struct RBData_
-{
-  // The variable used to index the tree has to be called "key".
-  // The type may be any you want (float, char *, etc)
-  TYPE_RBTREE_KEY key;
+typedef struct RBData_ {
+    // The variable used to index the tree has to be called "key".
+    // The type may be any you want (float, char *, etc)
+    TYPE_RBTREE_KEY key;
 
-  // This is the additional information that will be stored
-  // within the structure. You may adapt it to your needs:
-  // add or remove elements as you need.
-  int num;
-  List* occurrences;
+    // This is the additional information that will be stored
+    // within the structure. You may adapt it to your needs:
+    // add or remove elements as you need.
+    int num;
+    List *occurrences;
 } RBData;
 
 /**
@@ -41,13 +40,18 @@ typedef struct RBData_
  *
  */
 
-typedef enum { BLACK, RED } nodeColor;
+typedef enum {
+    BLACK, RED
+} nodeColor;
 
 typedef struct Node_ {
     /* For internal use of the structure. Do not change. */
-    struct Node_ *left;         /* left child */
-    struct Node_ *right;        /* right child */
-    struct Node_ *parent;       /* parent */
+    struct Node_ *left;
+    /* left child */
+    struct Node_ *right;
+    /* right child */
+    struct Node_ *parent;
+    /* parent */
     nodeColor color;            /* node color (BLACK, RED) */
 
     /* Data to be stored at each node */
@@ -62,9 +66,10 @@ typedef struct Node_ {
  */
 
 typedef struct RBTree_ {
-  Node *root;                   /* root of Red-Black tree */
-  int numNodes;
-  int scannedFiles;
+    Node *root;
+    /* root of Red-Black tree */
+    int numNodes;
+    int scannedFiles;
 } RBTree;
 
 /*
@@ -73,9 +78,15 @@ typedef struct RBTree_ {
  */
 
 void initTree(RBTree *tree);
+
 int getNumNodes(RBTree *tree);
+
 void insertNode(RBTree *tree, RBData *data);
+
 RBData *findNode(RBTree *tree, TYPE_RBTREE_KEY key);
+
 void deleteTree(RBTree *tree);
-void saveTree(char * filename, RBTree * tree);
+
+void saveTree(char *filename, RBTree *tree);
+
 #endif

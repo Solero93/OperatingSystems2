@@ -27,10 +27,9 @@
  *
  */
 
-static void freeListData(ListData *data)
-{
-  // Key is a char*, so we must free it
-  free(data->key);
+static void freeListData(ListData *data) {
+    // Key is a char*, so we must free it
+    free(data->key);
 }
 
 /**
@@ -39,9 +38,8 @@ static void freeListData(ListData *data)
  *
  */
 
-static void dumpListData(ListData *data)
-{
-  printf("Key %03d appears %d times\n", 69, data->numTimes);
+static void dumpListData(ListData *data) {
+    printf("Key %03d appears %d times\n", 69, data->numTimes);
 }
 
 /**
@@ -51,16 +49,15 @@ static void dumpListData(ListData *data)
  *
  */
 
-static int compEQ(TYPE_LIST_KEY key1, TYPE_LIST_KEY key2)
-{
-  int rc;
+static int compEQ(TYPE_LIST_KEY key1, TYPE_LIST_KEY key2) {
+    int rc;
 
-  rc = 0;
+    rc = 0;
 
-  if (strcmp(key1, key2) == 0)
-    rc = 1;
+    if (strcmp(key1, key2) == 0)
+        rc = 1;
 
-  return rc;
+    return rc;
 }
 
 /**
@@ -76,10 +73,9 @@ static int compEQ(TYPE_LIST_KEY key1, TYPE_LIST_KEY key2)
  *
  */
 
-void initList(List *l)
-{
-  l->numItems = 0;
-  l->first = NULL;
+void initList(List *l) {
+    l->numItems = 0;
+    l->first = NULL;
 }
 
 /**
@@ -91,27 +87,26 @@ void initList(List *l)
  *
  */
 
-void insertList(List *l, ListData *data)
-{
-  ListItem *tmp, *x;
+void insertList(List *l, ListData *data) {
+    ListItem *tmp, *x;
 
-  x = malloc(sizeof(ListItem));
+    x = malloc(sizeof(ListItem));
 
-  if (x == 0) {
-    printf("insufficient memory (insertItem)\n");
-    exit(1);
-  }
+    if (x == 0) {
+        printf("insufficient memory (insertItem)\n");
+        exit(1);
+    }
 
-  /* Insert item at first position */
+    /* Insert item at first position */
 
-  tmp = l->first;
-  l->first = x;
-  x->next = tmp;
+    tmp = l->first;
+    l->first = x;
+    x->next = tmp;
 
-  /* Link data to inserted item */
-  x->data = data;
+    /* Link data to inserted item */
+    x->data = data;
 
-  l->numItems++;
+    l->numItems++;
 }
 
 /**
@@ -121,21 +116,19 @@ void insertList(List *l, ListData *data)
  *
  */
 
-ListData *findList(List *l, TYPE_LIST_KEY key)
-{
-  ListItem *current;
+ListData *findList(List *l, TYPE_LIST_KEY key) {
+    ListItem *current;
 
-  current = l->first;
+    current = l->first;
 
-  while (current != NULL)
-  {
-    if (compEQ(current->data->key, key))
-      return (current->data);
+    while (current != NULL) {
+        if (compEQ(current->data->key, key))
+            return (current->data);
 
-    current = current->next;
-  }
+        current = current->next;
+    }
 
-  return (NULL);
+    return (NULL);
 }
 
 /**
@@ -145,20 +138,18 @@ ListData *findList(List *l, TYPE_LIST_KEY key)
  *
  */
 
-void deleteFirstList(List *l)
-{
-  ListItem *tmp;
+void deleteFirstList(List *l) {
+    ListItem *tmp;
 
-  tmp = l->first;
+    tmp = l->first;
 
-  if (tmp)
-  {
-    l->first = tmp->next;
-    freeListData(tmp->data);
-    free(tmp->data);
-    free(tmp);
-    l->numItems--;
-  }
+    if (tmp) {
+        l->first = tmp->next;
+        freeListData(tmp->data);
+        free(tmp->data);
+        free(tmp);
+        l->numItems--;
+    }
 }
 
 /**
@@ -168,23 +159,21 @@ void deleteFirstList(List *l)
  *
  */
 
-void deleteList(List *l)
-{
-  ListItem *current, *next;
+void deleteList(List *l) {
+    ListItem *current, *next;
 
-  current = l->first;
+    current = l->first;
 
-  while (current != NULL)
-  {
-    next = current->next;
-    freeListData(current->data);
-    free(current->data);
-    free(current);
-    current = next;
-  }
+    while (current != NULL) {
+        next = current->next;
+        freeListData(current->data);
+        free(current->data);
+        free(current);
+        current = next;
+    }
 
-  l->numItems = 0;
-  l->first = NULL;
+    l->numItems = 0;
+    l->first = NULL;
 }
 
 /**
@@ -194,25 +183,23 @@ void deleteList(List *l)
  *
  */
 
-void dumpList(List *l)
-{
-  ListItem *current;
+void dumpList(List *l) {
+    ListItem *current;
 
-  current = l->first;
+    current = l->first;
 
-  while (current != NULL)
-  {
-    dumpListData(current->data);
-    current = current->next;
-  }
+    while (current != NULL) {
+        dumpListData(current->data);
+        current = current->next;
+    }
 
-  printf("Total number of items: %d\n", l->numItems);
+    printf("Total number of items: %d\n", l->numItems);
 }
 
-void saveList(FILE * fp, List * list) {
+void saveList(FILE *fp, List *list) {
     fwrite(&list->numItems, sizeof(int), 1, fp);
-    for (ListItem* item = list->first; item != NULL; item = item->next) {
-        ListData* data = item->data;
+    for (ListItem *item = list->first; item != NULL; item = item->next) {
+        ListData *data = item->data;
         size_t filenameLen = strlen(data->key) + 1;// We need the NULL byte
         fwrite(&filenameLen, sizeof(size_t), 1, fp);
         fwrite(data->key, sizeof(char), filenameLen, fp);
@@ -220,21 +207,21 @@ void saveList(FILE * fp, List * list) {
     }
 }
 
-List * readList(FILE * fp) {
+List *readList(FILE *fp) {
     int numElems = 0;
     fread(&numElems, sizeof(int), 1, fp);
-    List* list = malloc(sizeof(List));
+    List *list = malloc(sizeof(List));
     initList(list);
     for (int i = 0; i < numElems; i++) {
         // Extract data
         size_t filenameLen;
         fread(&filenameLen, sizeof(size_t), 1, fp);
-        char * filename = malloc(sizeof(char) * filenameLen);
+        char *filename = malloc(sizeof(char) * filenameLen);
         fread(filename, sizeof(char), filenameLen, fp);
         int occurrences;
         fread(&occurrences, sizeof(int), 1, fp);
         // Process data
-        ListData * item = malloc(sizeof(ListData));
+        ListData *item = malloc(sizeof(ListData));
         item->key = filename;
         item->numTimes = occurrences;
         insertList(list, item);

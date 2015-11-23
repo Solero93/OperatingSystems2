@@ -8,6 +8,8 @@
 
 #define MAXCHAR 100
 
-RBTree * createTree(char * dictionary, char * configFile);
-RBTree * readTree(char * filename);
+RBTree *createTree(char *dictionary, char *configFile);
+
+RBTree *readTree(char *filename);
+
 #endif

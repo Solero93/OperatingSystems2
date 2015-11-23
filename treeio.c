@@ -1,20 +1,18 @@
 #include "red-black-tree.h"
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "treeio.h"
-#include "linked-list.h"
 #include "strutils.h"
 #include "extract-words.h"
 #include "hashutils.h"
 
-RBTree * readTree(char * filename) {
-    FILE* fp = fopen(filename, "r");
-    RBTree* tree = malloc(sizeof(RBTree));
+RBTree *readTree(char *filename) {
+    FILE *fp = fopen(filename, "r");
+    RBTree *tree = malloc(sizeof(RBTree));
     initTree(tree);
     // First 4 bytes (int) are the number of scanned files
     fread(&tree->scannedFiles, sizeof(int), 1, fp);
-    char* word;
+    char *word;
     int wordCount;
     size_t wordLength;
     while (feof(fp) == 0) {
@@ -27,7 +25,7 @@ RBTree * readTree(char * filename) {
         fread(word, sizeof(char), wordLength, fp);
         fread(&wordCount, sizeof(int), 1, fp);
         // Process the data
-        RBData* data = malloc(sizeof(RBData));
+        RBData *data = malloc(sizeof(RBData));
         data->key = word;
         data->num = wordCount;
         data->occurrences = readList(fp);
@@ -40,65 +38,65 @@ RBTree * readTree(char * filename) {
 /*
  Given a file and an empty tree we insert each word of the file into the tree
  */
-static void createDictionaryTree(RBTree * tree, FILE * dictionary) {
-  RBData * treeData;
-  char * buffer = (char*) malloc(sizeof(char) * MAXCHAR);
-  char * tmpChar;
-  while (fscanf(dictionary, "%s", buffer) != EOF) {
-    tmpChar = (char*) malloc(sizeof(char) * MAXCHAR);
+static void createDictionaryTree(RBTree *tree, FILE *dictionary) {
+    RBData *treeData;
+    char *buffer = (char *) malloc(sizeof(char) * MAXCHAR);
+    char *tmpChar;
+    while (fscanf(dictionary, "%s", buffer) != EOF) {
+        tmpChar = (char *) malloc(sizeof(char) * MAXCHAR);
 
-    strcpy(tmpChar, buffer);
-    lowercaseWord(tmpChar);
+        strcpy(tmpChar, buffer);
+        lowercaseWord(tmpChar);
 
-    //Search if the key is in the tree
-    treeData = findNode(tree, tmpChar);
+        //Search if the key is in the tree
+        treeData = findNode(tree, tmpChar);
 
-    if (treeData == NULL) {
-      //If the key is not in the tree, allocate memory for the data and insert in the tree
-      treeData = malloc(sizeof(RBData));
-      treeData->key = tmpChar;
-      treeData->num = 0;
-      treeData->occurrences = malloc(sizeof(List));
-      initList(treeData->occurrences);
-      insertNode(tree, treeData);
+        if (treeData == NULL) {
+            //If the key is not in the tree, allocate memory for the data and insert in the tree
+            treeData = malloc(sizeof(RBData));
+            treeData->key = tmpChar;
+            treeData->num = 0;
+            treeData->occurrences = malloc(sizeof(List));
+            initList(treeData->occurrences);
+            insertNode(tree, treeData);
+        }
+
     }
-
-  }
-  // Let's not forget we used a buffer :D
-  free(buffer);
+    // Let's not forget we used a buffer :D
+    free(buffer);
 }
 
-static void insertHashtableToTree(RBTree * tree, List ** hash_table, char * filename) {
-    List * list;
-    ListItem * current;
-    RBData * treeData;
+static void insertHashtableToTree(RBTree *tree, List **hash_table, char *filename) {
+    List *list;
+    ListItem *current;
+    RBData *treeData;
     int differentWords = 0;
     // We now scan through the whole hash_table and insert all words
     for (int i = 0; i < SIZE; i++) {
-      list = hash_table[i];
-      current = list->first;
-      while (current != NULL) {
-        treeData = findNode(tree, current->data->key);
-        if (treeData != NULL) { // If it's null it's a word not in the dictionary, so we avoid it
-          treeData->num += current->data->numTimes;
-          ListData * occurrences = malloc(sizeof(ListData));
-          occurrences->key = filename;
-          occurrences->numTimes = current->data->numTimes;
-          insertList(treeData->occurrences, occurrences);
-          differentWords++;
+        list = hash_table[i];
+        current = list->first;
+        while (current != NULL) {
+            treeData = findNode(tree, current->data->key);
+            if (treeData != NULL) { // If it's null it's a word not in the dictionary, so we avoid it
+                treeData->num += current->data->numTimes;
+                ListData *occurrences = malloc(sizeof(ListData));
+                occurrences->key = filename;
+                occurrences->numTimes = current->data->numTimes;
+                insertList(treeData->occurrences, occurrences);
+                differentWords++;
+            }
+            current = current->next;
         }
-        current = current->next;
-      }
     }
     printf("File has %d different words\n", differentWords);
 }
 
-RBTree * createTree(char * dictionary, char * configFile) {
-    List ** hash_table = createHashTable(SIZE);
-    RBTree * tree = malloc(sizeof(RBTree));
-    FILE * fp;
-    FILE * currentFile;
-    char * word;
+RBTree *createTree(char *dictionary, char *configFile) {
+    List **hash_table = createHashTable(SIZE);
+    RBTree *tree = malloc(sizeof(RBTree));
+    FILE *fp;
+    FILE *currentFile;
+    char *word;
     int numFiles;
     // We start creating our dictionary tree
     initTree(tree);
@@ -111,7 +109,7 @@ RBTree * createTree(char * dictionary, char * configFile) {
     fscanf(fp, "%d", &numFiles);
     for (int i = 0; i < numFiles; i++) {
         // Note, this is malloc'd here due to the filename being used in the list of occurrences
-        char * filename = malloc(sizeof(char) * MAXCHAR);
+        char *filename = malloc(sizeof(char) * MAXCHAR);
         // One file path per line
         fscanf(fp, "%s", filename);
         printf("reading file: %s\n", filename);

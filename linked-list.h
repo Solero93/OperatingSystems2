@@ -36,13 +36,13 @@
  */
 
 typedef struct ListData_ {
-  // The variable used to index the list has to be called "key".
-  TYPE_LIST_KEY key;
+    // The variable used to index the list has to be called "key".
+    TYPE_LIST_KEY key;
 
-  // This is the additional information that will be stored
-  // within the structure. This additional information is associated
-  // to the key.
-  int numTimes;
+    // This is the additional information that will be stored
+    // within the structure. This additional information is associated
+    // to the key.
+    int numTimes;
 } ListData;
 
 
@@ -53,8 +53,8 @@ typedef struct ListData_ {
  */
 
 typedef struct ListItem_ {
-  ListData *data;
-  struct ListItem_ *next;
+    ListData *data;
+    struct ListItem_ *next;
 } ListItem;
 
 /**
@@ -64,8 +64,8 @@ typedef struct ListItem_ {
  */
 
 typedef struct List_ {
-  int numItems;
-  ListItem *first;
+    int numItems;
+    ListItem *first;
 } List;
 
 /**
@@ -76,11 +76,19 @@ typedef struct List_ {
  */
 
 void initList(List *l);
+
 void insertList(List *l, ListData *data);
+
 ListData *findList(List *l, TYPE_LIST_KEY key);
+
 void deleteFirstList(List *l);
+
 void deleteList(List *l);
+
 void dumpList(List *l);
-void saveList(FILE * fp, List * l);
-List * readList(FILE * fp);
+
+void saveList(FILE *fp, List *l);
+
+List *readList(FILE *fp);
+
 #endif
