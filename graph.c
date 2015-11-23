@@ -50,6 +50,10 @@ int drawGraph(char* word, RBTree* tree){
     for (int i=0; i<numItems; i++){
         fprintf(data, "%d %f\n", i, occurrences[i].numTimes * 1.0 / (treeNode->num));
     }
+    // We complete the dataset with the remaining 0 appearences in the other files
+    for (int i=numItems; i < tree->scannedFiles; i++) {
+        fprintf(data, "%d 0\n", i);
+    }
     fclose(data);
 
     // STEP 3 : Open a pipe with gnuplot and send commands
