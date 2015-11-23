@@ -64,6 +64,7 @@ typedef struct Node_ {
 typedef struct RBTree_ {
   Node *root;                   /* root of Red-Black tree */
   int numNodes;
+  int scannedFiles;
 } RBTree;
 
 /*

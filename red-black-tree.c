@@ -54,6 +54,7 @@ static void saveTreeRecursively(FILE * fp, Node * node) {
 void saveTree(char * filename, RBTree * tree) {
     FILE* fp = fopen(filename, "w");
     if (tree->root != NIL) {
+        fwrite(&tree->scannedFiles, sizeof(int), 1, fp);
         saveTreeRecursively(fp, tree->root);
     }
     fclose(fp);
@@ -384,4 +385,5 @@ void deleteTree(RBTree *tree)
     deleteTreeRecursive(tree->root);
 
   tree->numNodes = 0;
+  tree->scannedFiles = 0;
 }

@@ -12,12 +12,15 @@ RBTree * readTree(char * filename) {
     FILE* fp = fopen(filename, "r");
     RBTree* tree = malloc(sizeof(RBTree));
     initTree(tree);
+    // First 4 bytes (int) are the number of scanned files
+    fread(&tree->scannedFiles, sizeof(int), 1, fp);
     char* word;
     int wordCount;
     size_t wordLength;
     while (feof(fp) == 0) {
         /* Read the data
            The data is formatted as follows: strlen, string, number of times it appears
+           and then it's the list of how many times it appears in every file
          */
         fread(&wordLength, sizeof(size_t), 1, fp);
         word = calloc(sizeof(char), wordLength);
@@ -119,10 +122,11 @@ RBTree * createTree(char * dictionary, char * configFile) {
         }
         // And now we just enter the numbers into the tree and reset the table
         insertHashtableToTree(tree, hash_table, filename);
+        tree->scannedFiles++;
         clearTable(hash_table);
         fclose(currentFile);
     }
-    // We could very well not do this as when we finish the kernel will cleanup
+    // We could very well not do this as when we finish, the kernel will cleanup
     // after us and we're not doing anything else with our data
     deleteTable(hash_table);
     fclose(fp);
