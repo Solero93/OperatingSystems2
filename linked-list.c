@@ -200,9 +200,6 @@ void saveList(FILE *fp, List *list) {
     fwrite(&list->numItems, sizeof(int), 1, fp);
     for (ListItem *item = list->first; item != NULL; item = item->next) {
         ListData *data = item->data;
-        size_t filenameLen = strlen(data->key) + 1;// We need the NULL byte
-        fwrite(&filenameLen, sizeof(size_t), 1, fp);
-        fwrite(data->key, sizeof(char), filenameLen, fp);
         fwrite(&data->numTimes, sizeof(int), 1, fp);
     }
 }
@@ -214,15 +211,11 @@ List *readList(FILE *fp) {
     initList(list);
     for (int i = 0; i < numElems; i++) {
         // Extract data
-        size_t filenameLen;
-        fread(&filenameLen, sizeof(size_t), 1, fp);
-        char *filename = malloc(sizeof(char) * filenameLen);
-        fread(filename, sizeof(char), filenameLen, fp);
         int occurrences;
         fread(&occurrences, sizeof(int), 1, fp);
         // Process data
         ListData *item = malloc(sizeof(ListData));
-        item->key = filename;
+        item->key = calloc(1, sizeof(char));
         item->numTimes = occurrences;
         insertList(list, item);
     }

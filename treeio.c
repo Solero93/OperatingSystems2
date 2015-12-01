@@ -85,7 +85,7 @@ static void insertHashtableToTree(RBTree *tree, List **hash_table, char *filenam
             if (treeData != NULL) { // If it's null it's a word not in the dictionary, so we avoid it
                 treeData->num += current->data->numTimes;
                 ListData *occurrences = malloc(sizeof(ListData));
-                occurrences->key = filename;
+                occurrences->key = calloc(1, sizeof(char));
                 occurrences->numTimes = current->data->numTimes;
                 insertList(treeData->occurrences, occurrences);
                 differentWords++;
