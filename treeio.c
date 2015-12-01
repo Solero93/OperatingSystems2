@@ -102,9 +102,9 @@ void *processFile(void *threadArg) {
     char *word;
     List **hash_table = createHashTable(SIZE);
     RBTree *tree = threadData.tree;
+    char *filename = malloc(sizeof(char) * MAXCHAR);
     while (threadData.filesLeft > 0) {
         // Note, this is malloc'd here due to the filename being used in the list of occurrences
-        char *filename = malloc(sizeof(char) * MAXCHAR);
         /*
          * One file path per line. Plus we also have to lock to avoid race conditions
          */
@@ -112,7 +112,7 @@ void *processFile(void *threadArg) {
         // This is just if another thread finished the remaining files before freeing the lock
         if (threadData.filesLeft <= 0) {
             pthread_mutex_unlock(&mutexConfigFile);
-            pthread_exit(NULL);
+            break;
         }
         fscanf(fp, "%s", filename);
         threadData.filesLeft--;
@@ -135,6 +135,7 @@ void *processFile(void *threadArg) {
     }
     deleteTable(hash_table);
     free(hash_table);
+    free(filename);
     pthread_exit(NULL);
 }
 
@@ -173,5 +174,7 @@ RBTree *createTree(char *dictionary, char *configFile) {
         pthread_join(threads[i], NULL);
     }
     fclose(fp);
+    pthread_mutex_destroy(&mutexTree);
+    pthread_mutex_destroy(&mutexConfigFile);
     return tree;
 }
