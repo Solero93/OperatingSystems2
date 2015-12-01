@@ -102,19 +102,20 @@ void *processFile(void *threadArg) {
     char *word;
     List **hash_table = createHashTable(SIZE);
     RBTree *tree = threadData.tree;
-    while (threadData.numFiles > 0) {
+    while (threadData.filesLeft > 0) {
         // Note, this is malloc'd here due to the filename being used in the list of occurrences
         char *filename = malloc(sizeof(char) * MAXCHAR);
         /*
          * One file path per line. Plus we also have to lock to avoid race conditions
          */
         pthread_mutex_lock(&mutexConfigFile);
-        if (threadData.numFiles <= 0) {
+        // This is just if another thread finished the remaining files before freeing the lock
+        if (threadData.filesLeft <= 0) {
             pthread_mutex_unlock(&mutexConfigFile);
             pthread_exit(NULL);
         }
         fscanf(fp, "%s", filename);
-        threadData.numFiles--;
+        threadData.filesLeft--;
         printf("reading file: %s\n", filename);
         pthread_mutex_unlock(&mutexConfigFile);
 
@@ -146,6 +147,7 @@ RBTree *createTree(char *dictionary, char *configFile) {
     // Initialise the joinable attribute
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+
     RBTree *tree = malloc(sizeof(RBTree));
     FILE *fp;
     int numFiles;
@@ -161,7 +163,8 @@ RBTree *createTree(char *dictionary, char *configFile) {
     // Thread data setup
     threadData.fp = fp;
     threadData.tree = tree;
-    threadData.numFiles = numFiles;
+    threadData.filesLeft = numFiles;
+    // We create and then we wait
     for (int i = 0; i < NUMTHREADS; i++) {
         pthread_create(&threads[i], &attr, processFile, NULL);
     }

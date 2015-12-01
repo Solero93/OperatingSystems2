@@ -13,7 +13,7 @@
 struct thread_data {
     FILE *fp;
     RBTree *tree;
-    int numFiles;
+    int filesLeft;
 };
 
 RBTree *createTree(char *dictionary, char *configFile);
