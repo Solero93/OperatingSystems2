@@ -93,7 +93,7 @@ static void insertHashtableToTree(RBTree *tree, List **hash_table, char *filenam
             current = current->next;
         }
     }
-    printf("File has %d different words\n", differentWords);
+    printf("%s has %d different words\n", filename, differentWords);
 }
 
 void *processFile(void *threadArg) {
