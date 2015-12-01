@@ -1,10 +1,15 @@
 #include "red-black-tree.h"
 #include <stdlib.h>
 #include <string.h>
+#include <pthread.h>
 #include "treeio.h"
 #include "strutils.h"
 #include "extract-words.h"
 #include "hashutils.h"
+
+static pthread_mutex_t mutexTree, mutexConfigFile;
+
+static struct thread_data threadData;
 
 RBTree *readTree(char *filename) {
     FILE *fp = fopen(filename, "r");
@@ -91,12 +96,58 @@ static void insertHashtableToTree(RBTree *tree, List **hash_table, char *filenam
     printf("File has %d different words\n", differentWords);
 }
 
-RBTree *createTree(char *dictionary, char *configFile) {
+void *processFile(void *threadArg) {
+    FILE *currentFile;
+    FILE *fp = threadData.fp;
+    char *word;
     List **hash_table = createHashTable(SIZE);
+    RBTree *tree = threadData.tree;
+    while (threadData.numFiles > 0) {
+        // Note, this is malloc'd here due to the filename being used in the list of occurrences
+        char *filename = malloc(sizeof(char) * MAXCHAR);
+        /*
+         * One file path per line. Plus we also have to lock to avoid race conditions
+         */
+        pthread_mutex_lock(&mutexConfigFile);
+        if (threadData.numFiles <= 0) {
+            pthread_mutex_unlock(&mutexConfigFile);
+            pthread_exit(NULL);
+        }
+        fscanf(fp, "%s", filename);
+        threadData.numFiles--;
+        printf("reading file: %s\n", filename);
+        pthread_mutex_unlock(&mutexConfigFile);
+
+        currentFile = fopen(filename, "r");
+        // We read words until we're done with the file
+        while ((word = extractWord(currentFile)) != NULL) {
+            insertToHash(hash_table, word);
+        }
+        // And now we just enter the numbers into the tree and reset the table
+        pthread_mutex_lock(&mutexTree);
+        insertHashtableToTree(tree, hash_table, filename);
+        tree->scannedFiles++;
+        pthread_mutex_unlock(&mutexTree);
+
+        clearTable(hash_table);
+        fclose(currentFile);
+    }
+    deleteTable(hash_table);
+    free(hash_table);
+    pthread_exit(NULL);
+}
+
+RBTree *createTree(char *dictionary, char *configFile) {
+    // Thread declaration and Mutex initialisation
+    pthread_mutex_init(&mutexConfigFile, NULL);
+    pthread_mutex_init(&mutexTree, NULL);
+    pthread_t threads[NUMTHREADS];
+    pthread_attr_t attr;
+    // Initialise the joinable attribute
+    pthread_attr_init(&attr);
+    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
     RBTree *tree = malloc(sizeof(RBTree));
     FILE *fp;
-    FILE *currentFile;
-    char *word;
     int numFiles;
     // We start creating our dictionary tree
     initTree(tree);
@@ -107,27 +158,17 @@ RBTree *createTree(char *dictionary, char *configFile) {
     fp = fopen(configFile, "r");
     // First line of the .cfg file is the number of files
     fscanf(fp, "%d", &numFiles);
-    for (int i = 0; i < numFiles; i++) {
-        // Note, this is malloc'd here due to the filename being used in the list of occurrences
-        char *filename = malloc(sizeof(char) * MAXCHAR);
-        // One file path per line
-        fscanf(fp, "%s", filename);
-        printf("reading file: %s\n", filename);
-        currentFile = fopen(filename, "r");
-        // We read words until we're done with the file
-        while ((word = extractWord(currentFile)) != NULL) {
-            insertToHash(hash_table, word);
-        }
-        // And now we just enter the numbers into the tree and reset the table
-        insertHashtableToTree(tree, hash_table, filename);
-        tree->scannedFiles++;
-        clearTable(hash_table);
-        fclose(currentFile);
+    // Thread data setup
+    threadData.fp = fp;
+    threadData.tree = tree;
+    threadData.numFiles = numFiles;
+    for (int i = 0; i < NUMTHREADS; i++) {
+        pthread_create(&threads[i], &attr, processFile, NULL);
     }
-    // We could very well not do this as when we finish, the kernel will cleanup
-    // after us and we're not doing anything else with our data
-    deleteTable(hash_table);
+    pthread_attr_destroy(&attr);
+    for (int i = 0; i < NUMTHREADS; i++) {
+        pthread_join(threads[i], NULL);
+    }
     fclose(fp);
-    free(hash_table);
     return tree;
 }

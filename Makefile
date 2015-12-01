@@ -4,13 +4,13 @@
 FILES_C = linked-list.c extract-words.c red-black-tree.c hashutils.c strutils.c treeio.c menu.c graph.c
 
 # Exectuable to generate
-TARGET = practica3
+TARGET = practica4
 
 # Compilation options
 CFLAGS = -std=gnu99 -Wall -Werror -g
 
 # Linker options
-LFLAGS = -lm
+LFLAGS = -lm -lpthread
 
 # There is no need to change the instructions below this
 # line. Change if you really know what you are doing.
