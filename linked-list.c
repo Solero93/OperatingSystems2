@@ -30,6 +30,7 @@
 static void freeListData(ListData *data) {
     // Key is a char*, so we must free it
     free(data->key);
+    free(data);
 }
 
 /**
@@ -167,7 +168,6 @@ void deleteList(List *l) {
     while (current != NULL) {
         next = current->next;
         freeListData(current->data);
-        free(current->data);
         free(current);
         current = next;
     }
