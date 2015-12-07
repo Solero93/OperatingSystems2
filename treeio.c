@@ -123,7 +123,7 @@ void *processFile(void *threadArg) {
         pthread_mutex_lock(&mutexHashTable);
         /* CRITICAL BLOCK
          *      WRITE TO HASH*/
-        if (numElem == NUMTHREADS) { // Buffer full -> wait
+        while (numElem == NUMTHREADS) { // Buffer full -> wait
             pthread_cond_wait(&prodQ, &mutexHashTable);
         }
         while (hashBuffer[bufferWriteIndex][0]->first != NULL) {
@@ -148,7 +148,7 @@ void *insertToTree(void *threadArgs) {
         pthread_mutex_lock(&mutexHashTable);
         /* CRITICAL BLOCK
          *      READ FROM HASH + INSERT TO TREE */
-        if (numElem == 0) { // Buffer empty -> wait
+        while (numElem == 0) { // Buffer empty -> wait
             pthread_cond_wait(&consQ, &mutexHashTable);
         }
         while (hashBuffer[bufferReadIndex][0]->first != NULL) {
