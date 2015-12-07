@@ -7,9 +7,10 @@
 #include "extract-words.h"
 #include "hashutils.h"
 
-static pthread_mutex_t mutexTree, mutexConfigFile;
-
-static struct thread_data threadData;
+static pthread_mutex_t mutexConfigFile, mutexHashTable;
+static pthread_cond_t prodQ, consQ;
+static List ***hashBuffer;
+static int bufferReadIndex, bufferWriteIndex, numElem, numFilesLeft;
 
 RBTree *readTree(char *filename) {
     FILE *fp = fopen(filename, "r");
@@ -49,13 +50,10 @@ static void createDictionaryTree(RBTree *tree, FILE *dictionary) {
     char *tmpChar;
     while (fscanf(dictionary, "%s", buffer) != EOF) {
         tmpChar = (char *) malloc(sizeof(char) * MAXCHAR);
-
         strcpy(tmpChar, buffer);
         lowercaseWord(tmpChar);
-
         //Search if the key is in the tree
         treeData = findNode(tree, tmpChar);
-
         if (treeData == NULL) {
             //If the key is not in the tree, allocate memory for the data and insert in the tree
             treeData = malloc(sizeof(RBData));
@@ -65,13 +63,12 @@ static void createDictionaryTree(RBTree *tree, FILE *dictionary) {
             initList(treeData->occurrences);
             insertNode(tree, treeData);
         }
-
     }
     // Let's not forget we used a buffer :D
     free(buffer);
 }
 
-static void insertHashtableToTree(RBTree *tree, List **hash_table, char *filename) {
+static void insertHashtableToTree(RBTree *tree, List **hash_table) {
     List *list;
     ListItem *current;
     RBData *treeData;
@@ -93,29 +90,27 @@ static void insertHashtableToTree(RBTree *tree, List **hash_table, char *filenam
             current = current->next;
         }
     }
-    printf("%s has %d different words\n", filename, differentWords);
 }
 
 void *processFile(void *threadArg) {
     FILE *currentFile;
-    FILE *fp = threadData.fp;
+    FILE *fp = (FILE *) threadArg;
     char *word;
     List **hash_table = createHashTable(SIZE);
-    RBTree *tree = threadData.tree;
     char *filename = malloc(sizeof(char) * MAXCHAR);
-    while (threadData.filesLeft > 0) {
+    while (numFilesLeft > 0) {
         // Note, this is malloc'd here due to the filename being used in the list of occurrences
         /*
          * One file path per line. Plus we also have to lock to avoid race conditions
          */
         pthread_mutex_lock(&mutexConfigFile);
         // This is just if another thread finished the remaining files before freeing the lock
-        if (threadData.filesLeft <= 0) {
+        if (numFilesLeft == 0) {
             pthread_mutex_unlock(&mutexConfigFile);
             break;
         }
         fscanf(fp, "%s", filename);
-        threadData.filesLeft--;
+        numFilesLeft--;
         printf("reading file: %s\n", filename);
         pthread_mutex_unlock(&mutexConfigFile);
 
@@ -124,57 +119,100 @@ void *processFile(void *threadArg) {
         while ((word = extractWord(currentFile)) != NULL) {
             insertToHash(hash_table, word);
         }
-        // And now we just enter the numbers into the tree and reset the table
-        pthread_mutex_lock(&mutexTree);
-        insertHashtableToTree(tree, hash_table, filename);
-        tree->scannedFiles++;
-        pthread_mutex_unlock(&mutexTree);
 
-        clearTable(hash_table);
+        pthread_mutex_lock(&mutexHashTable);
+        /* CRITICAL BLOCK
+         *      WRITE TO HASH*/
+        if (numElem == NUMTHREADS) { // Buffer full -> wait
+            pthread_cond_wait(&prodQ, &mutexHashTable);
+        }
+        while (hashBuffer[bufferWriteIndex][0]->first != NULL) {
+            bufferWriteIndex = (bufferWriteIndex + 1) % NUMTHREADS;
+        }
+        hashBuffer[bufferWriteIndex] = hash_table;
+        numElem++;
         fclose(currentFile);
+        if (numElem == 1) {
+            pthread_cond_signal(&consQ);
+        }
+        /* END OF CRITICAL BLOCK */
+        pthread_mutex_unlock(&mutexHashTable);
     }
-    deleteTable(hash_table);
-    free(hash_table);
     free(filename);
     pthread_exit(NULL);
 }
 
-RBTree *createTree(char *dictionary, char *configFile) {
-    // Thread declaration and Mutex initialisation
-    pthread_mutex_init(&mutexConfigFile, NULL);
-    pthread_mutex_init(&mutexTree, NULL);
-    pthread_t threads[NUMTHREADS];
-    pthread_attr_t attr;
-    // Initialise the joinable attribute
-    pthread_attr_init(&attr);
-    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+void *insertToTree(void *threadArgs) {
+    RBTree *tree = (RBTree *) threadArgs;
+    while (numFilesLeft > 0 || numElem > 0) {
+        pthread_mutex_lock(&mutexHashTable);
+        /* CRITICAL BLOCK
+         *      READ FROM HASH + INSERT TO TREE */
+        if (numElem == 0) { // Buffer empty -> wait
+            pthread_cond_wait(&consQ, &mutexHashTable);
+        }
+        while (hashBuffer[bufferReadIndex][0]->first != NULL) {
+            bufferReadIndex = (bufferReadIndex + 1) % NUMTHREADS;
+        }
+        insertHashtableToTree(tree, hashBuffer[bufferReadIndex]);
+        tree->scannedFiles++;
+        clearTable(hashBuffer[bufferReadIndex]);
+        numElem--;
+        if (numElem == NUMTHREADS - 1) {
+            pthread_cond_broadcast(&prodQ);
+        }
+        /* END OF CRITICAL BLOCK */
+        pthread_mutex_unlock(&mutexHashTable);
+    }
+    pthread_exit(NULL);
+}
 
+RBTree *createTree(char *dictionary, char *configFile) {
+    hashBuffer = (List ***) malloc(sizeof(List **) * NUMTHREADS);
+    for (int i = 0; i < NUMTHREADS; i++) {
+        hashBuffer[i] = createHashTable(SIZE);
+    }
+    bufferReadIndex = 0;
+    bufferWriteIndex = 0;
+    numElem = 0;
     RBTree *tree = malloc(sizeof(RBTree));
-    FILE *fp;
-    int numFiles;
-    // We start creating our dictionary tree
     initTree(tree);
-    fp = fopen(dictionary, "r");
+    FILE *fp = fopen(dictionary, "r");
     createDictionaryTree(tree, fp);
     fclose(fp);
     // We now have the dictionary created, let's now start with the word counting
     fp = fopen(configFile, "r");
-    // First line of the .cfg file is the number of files
-    fscanf(fp, "%d", &numFiles);
-    // Thread data setup
-    threadData.fp = fp;
-    threadData.tree = tree;
-    threadData.filesLeft = numFiles;
+    fscanf(fp, "%d", &numFilesLeft); // Beginning of configFile is number of files
+
+    // Thread declaration and Mutex initialisation
+    pthread_mutex_init(&mutexConfigFile, NULL);
+    pthread_mutex_init(&mutexHashTable, NULL);
+    pthread_cond_init(&prodQ, NULL);
+    pthread_cond_init(&consQ, NULL);
+    pthread_t threads[NUMTHREADS + 1];
+    //pthread_attr_t attr;
+    // Initialise the joinable attribute
+    //pthread_attr_init(&attr);
+    //pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+
     // We create and then we wait
     for (int i = 0; i < NUMTHREADS; i++) {
-        pthread_create(&threads[i], &attr, processFile, NULL);
+        pthread_create(&threads[i], NULL, processFile(fp), NULL);
     }
-    pthread_attr_destroy(&attr);
-    for (int i = 0; i < NUMTHREADS; i++) {
+    pthread_create(&threads[NUMTHREADS], NULL, insertToTree(tree), NULL); // Last thread -> to insert
+    //pthread_attr_destroy(&attr);
+    for (int i = 0; i < NUMTHREADS + 1; i++) {
         pthread_join(threads[i], NULL);
     }
+    for (int i = 0; i < NUMTHREADS; i++) {
+        clearTable(hashBuffer[i]);
+        free(hashBuffer[i]);
+    }
+    free(hashBuffer);
     fclose(fp);
-    pthread_mutex_destroy(&mutexTree);
+    pthread_mutex_destroy(&mutexHashTable);
     pthread_mutex_destroy(&mutexConfigFile);
+    pthread_cond_destroy(&prodQ);
+    pthread_cond_destroy(&consQ);
     return tree;
 }

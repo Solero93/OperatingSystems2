@@ -10,12 +10,6 @@
 #define MAXCHAR 100
 #define NUMTHREADS 4
 
-struct thread_data {
-    FILE *fp;
-    RBTree *tree;
-    int filesLeft;
-};
-
 RBTree *createTree(char *dictionary, char *configFile);
 
 RBTree *readTree(char *filename);
