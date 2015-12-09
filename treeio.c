@@ -8,9 +8,9 @@
 #include "hashutils.h"
 
 static pthread_mutex_t mutexConfigFile, mutexHashTable;
-static pthread_cond_t prodQ, consQ;
+static pthread_cond_t prodQueue, consQueue;
 static List ***hashBuffer;
-static int bufferReadIndex, bufferWriteIndex, numElem, numFilesLeft;
+static int bufferWriteIndex, numElem, numFilesLeft;
 
 RBTree *readTree(char *filename) {
     FILE *fp = fopen(filename, "r");
@@ -92,6 +92,20 @@ static void insertHashtableToTree(RBTree *tree, List **hash_table) {
     }
 }
 
+void insertToBuffer(List **hash_table) {
+    pthread_mutex_lock(&mutexHashTable);
+    while (numElem == NUMTHREADS) { // Buffer full -> wait
+        pthread_cond_wait(&prodQueue, &mutexHashTable);
+    }
+    hashBuffer[bufferWriteIndex] = hash_table;
+    bufferWriteIndex = (bufferWriteIndex + 1) % NUMTHREADS;
+    numElem++;
+    if (numElem == 1) {
+        pthread_cond_signal(&consQueue);
+    }
+    pthread_mutex_unlock(&mutexHashTable);
+}
+
 void *processFile(void *threadArg) {
     FILE *currentFile;
     FILE *fp = (FILE *) threadArg;
@@ -119,24 +133,8 @@ void *processFile(void *threadArg) {
         while ((word = extractWord(currentFile)) != NULL) {
             insertToHash(hash_table, word);
         }
-
-        pthread_mutex_lock(&mutexHashTable);
-        /* CRITICAL BLOCK
-         *      WRITE TO HASH*/
-        while (numElem == NUMTHREADS) { // Buffer full -> wait
-            pthread_cond_wait(&prodQ, &mutexHashTable);
-        }
-        while (hashBuffer[bufferWriteIndex][0]->first != NULL) {
-            bufferWriteIndex = (bufferWriteIndex + 1) % NUMTHREADS;
-        }
-        hashBuffer[bufferWriteIndex] = hash_table;
-        numElem++;
+        insertToBuffer(hash_table);
         fclose(currentFile);
-        if (numElem == 1) {
-            pthread_cond_signal(&consQ);
-        }
-        /* END OF CRITICAL BLOCK */
-        pthread_mutex_unlock(&mutexHashTable);
     }
     free(filename);
     pthread_exit(NULL);
@@ -144,35 +142,32 @@ void *processFile(void *threadArg) {
 
 void *insertToTree(void *threadArgs) {
     RBTree *tree = (RBTree *) threadArgs;
+    int bufferReadIndex = 0;
     while (numFilesLeft > 0 || numElem > 0) {
         pthread_mutex_lock(&mutexHashTable);
-        /* CRITICAL BLOCK
-         *      READ FROM HASH + INSERT TO TREE */
         while (numElem == 0) { // Buffer empty -> wait
-            pthread_cond_wait(&consQ, &mutexHashTable);
-        }
-        while (hashBuffer[bufferReadIndex][0]->first != NULL) {
-            bufferReadIndex = (bufferReadIndex + 1) % NUMTHREADS;
+            pthread_cond_wait(&consQueue, &mutexHashTable);
         }
         insertHashtableToTree(tree, hashBuffer[bufferReadIndex]);
         tree->scannedFiles++;
         clearTable(hashBuffer[bufferReadIndex]);
+        deleteTable(hashBuffer[bufferReadIndex]);
+        bufferReadIndex = (bufferReadIndex + 1) % NUMTHREADS;
         numElem--;
         if (numElem == NUMTHREADS - 1) {
-            pthread_cond_broadcast(&prodQ);
+            pthread_cond_broadcast(&prodQueue);
         }
-        /* END OF CRITICAL BLOCK */
         pthread_mutex_unlock(&mutexHashTable);
     }
     pthread_exit(NULL);
 }
 
 RBTree *createTree(char *dictionary, char *configFile) {
+    pthread_t threads[NUMTHREADS + 1];
     hashBuffer = (List ***) malloc(sizeof(List **) * NUMTHREADS);
     for (int i = 0; i < NUMTHREADS; i++) {
         hashBuffer[i] = createHashTable(SIZE);
     }
-    bufferReadIndex = 0;
     bufferWriteIndex = 0;
     numElem = 0;
     RBTree *tree = malloc(sizeof(RBTree));
@@ -187,32 +182,33 @@ RBTree *createTree(char *dictionary, char *configFile) {
     // Thread declaration and Mutex initialisation
     pthread_mutex_init(&mutexConfigFile, NULL);
     pthread_mutex_init(&mutexHashTable, NULL);
-    pthread_cond_init(&prodQ, NULL);
-    pthread_cond_init(&consQ, NULL);
-    pthread_t threads[NUMTHREADS + 1];
-    //pthread_attr_t attr;
+    pthread_cond_init(&prodQueue, NULL);
+    pthread_cond_init(&consQueue, NULL);
+
+    pthread_attr_t attr;
     // Initialise the joinable attribute
-    //pthread_attr_init(&attr);
-    //pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+    pthread_attr_init(&attr);
+    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
     // We create and then we wait
     for (int i = 0; i < NUMTHREADS; i++) {
-        pthread_create(&threads[i], NULL, processFile(fp), NULL);
+        pthread_create(&threads[i], &attr, processFile, fp);
     }
-    pthread_create(&threads[NUMTHREADS], NULL, insertToTree(tree), NULL); // Last thread -> to insert
-    //pthread_attr_destroy(&attr);
+    pthread_create(&threads[NUMTHREADS], &attr, insertToTree, tree); // Last thread -> to insert
+    pthread_attr_destroy(&attr);
     for (int i = 0; i < NUMTHREADS + 1; i++) {
         pthread_join(threads[i], NULL);
     }
     for (int i = 0; i < NUMTHREADS; i++) {
         clearTable(hashBuffer[i]);
+        deleteTable(hashBuffer[i]);
         free(hashBuffer[i]);
     }
     free(hashBuffer);
     fclose(fp);
     pthread_mutex_destroy(&mutexHashTable);
     pthread_mutex_destroy(&mutexConfigFile);
-    pthread_cond_destroy(&prodQ);
-    pthread_cond_destroy(&consQ);
+    pthread_cond_destroy(&prodQueue);
+    pthread_cond_destroy(&consQueue);
     return tree;
 }
