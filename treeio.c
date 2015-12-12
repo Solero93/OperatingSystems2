@@ -163,11 +163,7 @@ void *insertToTree(void *threadArgs) {
 }
 
 RBTree *createTree(char *dictionary, char *configFile) {
-    pthread_t threads[NUMTHREADS + 1];
     hashBuffer = (List ***) malloc(sizeof(List **) * NUMTHREADS);
-    for (int i = 0; i < NUMTHREADS; i++) {
-        hashBuffer[i] = createHashTable(SIZE);
-    }
     bufferWriteIndex = 0;
     numElem = 0;
     RBTree *tree = malloc(sizeof(RBTree));
@@ -179,6 +175,7 @@ RBTree *createTree(char *dictionary, char *configFile) {
     fp = fopen(configFile, "r");
     fscanf(fp, "%d", &numFilesLeft); // Beginning of configFile is number of files
 
+    pthread_t threads[NUMTHREADS + 1];
     // Thread declaration and Mutex initialisation
     pthread_mutex_init(&mutexConfigFile, NULL);
     pthread_mutex_init(&mutexHashTable, NULL);
@@ -198,11 +195,6 @@ RBTree *createTree(char *dictionary, char *configFile) {
     pthread_attr_destroy(&attr);
     for (int i = 0; i < NUMTHREADS + 1; i++) {
         pthread_join(threads[i], NULL);
-    }
-    for (int i = 0; i < NUMTHREADS; i++) {
-        clearTable(hashBuffer[i]);
-        deleteTable(hashBuffer[i]);
-        free(hashBuffer[i]);
     }
     free(hashBuffer);
     fclose(fp);
