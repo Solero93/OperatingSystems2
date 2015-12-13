@@ -130,6 +130,7 @@ static int compEQ(TYPE_RBTREE_KEY key1, TYPE_RBTREE_KEY key2) {
 void initTree(RBTree *tree) {
     tree->root = NIL;
     tree->numNodes = 0;
+    tree->scannedFiles = 0;
 }
 
 /**
