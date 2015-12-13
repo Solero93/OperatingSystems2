@@ -124,6 +124,7 @@ void *processFile(void *threadArg) {
         // This is just if another thread finished the remaining files before freeing the lock
         if (numFilesLeft == 0) {
             pthread_mutex_unlock(&mutexConfigFile);
+            deleteTable(hash_table);
             break;
         }
         fscanf(fp, "%s", filename);

@@ -57,4 +57,5 @@ void deleteTable(List **table) {
     for (int i = 0; i < SIZE; i++) {
         free(table[i]);
     }
+    free(table);
 }
