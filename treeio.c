@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
+#include <stdbool.h>
 #include "treeio.h"
 #include "strutils.h"
 #include "extract-words.h"
@@ -11,6 +12,7 @@ static pthread_mutex_t mutexConfigFile, mutexHashTable;
 static pthread_cond_t prodQueue, consQueue;
 static List ***hashBuffer;
 static int bufferWriteIndex, numElem, numFilesLeft;
+static bool PRODUCERS_NOT_DONE;
 
 RBTree *readTree(char *filename) {
     FILE *fp = fopen(filename, "r");
@@ -110,9 +112,10 @@ void *processFile(void *threadArg) {
     FILE *currentFile;
     FILE *fp = (FILE *) threadArg;
     char *word;
-    List **hash_table = createHashTable(SIZE);
     char *filename = malloc(sizeof(char) * MAXCHAR);
     while (numFilesLeft > 0) {
+        // We create a hash_table for the current file
+        List **hash_table = createHashTable(SIZE);
         // Note, this is malloc'd here due to the filename being used in the list of occurrences
         /*
          * One file path per line. Plus we also have to lock to avoid race conditions
@@ -143,7 +146,8 @@ void *processFile(void *threadArg) {
 void *insertToTree(void *threadArgs) {
     RBTree *tree = (RBTree *) threadArgs;
     int bufferReadIndex = 0;
-    while (numFilesLeft > 0 || numElem > 0) {
+    // The "OR" is for when we're finished adding elements to the queue, to empty it
+    while (PRODUCERS_NOT_DONE || numElem > 0) {
         pthread_mutex_lock(&mutexHashTable);
         while (numElem == 0) { // Buffer empty -> wait
             pthread_cond_wait(&consQueue, &mutexHashTable);
@@ -187,15 +191,19 @@ RBTree *createTree(char *dictionary, char *configFile) {
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
-    // We create and then we wait
+    // We create the producers and then we wait
+    PRODUCERS_NOT_DONE = true;
     for (int i = 0; i < NUMTHREADS; i++) {
         pthread_create(&threads[i], &attr, processFile, fp);
     }
-    pthread_create(&threads[NUMTHREADS], &attr, insertToTree, tree); // Last thread -> to insert
+    pthread_create(&threads[NUMTHREADS], &attr, insertToTree, tree); // Last thread -> to insert to tree
     pthread_attr_destroy(&attr);
-    for (int i = 0; i < NUMTHREADS + 1; i++) {
+    for (int i = 0; i < NUMTHREADS; i++) {
         pthread_join(threads[i], NULL);
     }
+    // The producers are done working, therefore we now wait for the consumer thread to finish
+    PRODUCERS_NOT_DONE = false;
+    pthread_join(threads[NUMTHREADS], NULL);
     free(hashBuffer);
     fclose(fp);
     pthread_mutex_destroy(&mutexHashTable);
