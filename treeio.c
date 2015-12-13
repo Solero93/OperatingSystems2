@@ -96,11 +96,11 @@ static void insertHashtableToTree(RBTree *tree, List **hash_table) {
 
 void insertToBuffer(List **hash_table) {
     pthread_mutex_lock(&mutexHashTable);
-    while (numElem == NUMTHREADS) { // Buffer full -> wait
+    while (numElem == BUFFERSIZE) { // Buffer full -> wait
         pthread_cond_wait(&prodQueue, &mutexHashTable);
     }
     hashBuffer[bufferWriteIndex] = hash_table;
-    bufferWriteIndex = (bufferWriteIndex + 1) % NUMTHREADS;
+    bufferWriteIndex = (bufferWriteIndex + 1) % BUFFERSIZE;
     numElem++;
     if (numElem == 1) {
         pthread_cond_signal(&consQueue);
@@ -157,9 +157,9 @@ void *insertToTree(void *threadArgs) {
         tree->scannedFiles++;
         clearTable(hashBuffer[bufferReadIndex]);
         deleteTable(hashBuffer[bufferReadIndex]);
-        bufferReadIndex = (bufferReadIndex + 1) % NUMTHREADS;
+        bufferReadIndex = (bufferReadIndex + 1) % BUFFERSIZE;
         numElem--;
-        if (numElem == NUMTHREADS - 1) {
+        if (numElem == BUFFERSIZE - 1) {
             pthread_cond_broadcast(&prodQueue);
         }
         pthread_mutex_unlock(&mutexHashTable);
@@ -168,7 +168,7 @@ void *insertToTree(void *threadArgs) {
 }
 
 RBTree *createTree(char *dictionary, char *configFile) {
-    hashBuffer = (List ***) malloc(sizeof(List **) * NUMTHREADS);
+    hashBuffer = (List ***) malloc(sizeof(List **) * BUFFERSIZE);
     bufferWriteIndex = 0;
     numElem = 0;
     RBTree *tree = malloc(sizeof(RBTree));

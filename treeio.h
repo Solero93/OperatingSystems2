@@ -9,6 +9,7 @@
 
 #define MAXCHAR 100
 #define NUMTHREADS 4
+#define BUFFERSIZE NUMTHREADS
 
 RBTree *createTree(char *dictionary, char *configFile);
 
