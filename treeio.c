@@ -99,10 +99,10 @@ void insertToBuffer(List **hash_table) {
     while (numElem == BUFFERSIZE) { // Buffer full -> wait
         pthread_cond_wait(&prodQueue, &mutexHashTable);
     }
-    hashBuffer[bufferWriteIndex] = hash_table;
-    bufferWriteIndex = (bufferWriteIndex + 1) % BUFFERSIZE;
+    hashBuffer[bufferWriteIndex] = hash_table; // Write to buffer
+    bufferWriteIndex = (bufferWriteIndex + 1) % BUFFERSIZE; // Determine next index to write
     numElem++;
-    if (numElem == 1) {
+    if (numElem == 1) { // If buffer was empty -> signal consume
         pthread_cond_signal(&consQueue);
     }
     pthread_mutex_unlock(&mutexHashTable);
@@ -137,7 +137,7 @@ void *processFile(void *threadArg) {
         while ((word = extractWord(currentFile)) != NULL) {
             insertToHash(hash_table, word);
         }
-        insertToBuffer(hash_table);
+        insertToBuffer(hash_table); // Insert result to buffer
         fclose(currentFile);
     }
     free(filename);
@@ -155,11 +155,11 @@ void *insertToTree(void *threadArgs) {
         }
         insertHashtableToTree(tree, hashBuffer[bufferReadIndex]);
         tree->scannedFiles++;
-        clearTable(hashBuffer[bufferReadIndex]);
+        clearTable(hashBuffer[bufferReadIndex]); // Delete read data
         deleteTable(hashBuffer[bufferReadIndex]);
-        bufferReadIndex = (bufferReadIndex + 1) % BUFFERSIZE;
+        bufferReadIndex = (bufferReadIndex + 1) % BUFFERSIZE; // Determine next index to read
         numElem--;
-        if (numElem == BUFFERSIZE - 1) {
+        if (numElem == BUFFERSIZE - 1) { // If buffer was full -> broadcast producers
             pthread_cond_broadcast(&prodQueue);
         }
         pthread_mutex_unlock(&mutexHashTable);
@@ -168,7 +168,7 @@ void *insertToTree(void *threadArgs) {
 }
 
 RBTree *createTree(char *dictionary, char *configFile) {
-    hashBuffer = (List ***) malloc(sizeof(List **) * BUFFERSIZE);
+    hashBuffer = (List ***) malloc(sizeof(List **) * BUFFERSIZE); // Circular buffer to store data
     bufferWriteIndex = 0;
     numElem = 0;
     RBTree *tree = malloc(sizeof(RBTree));
@@ -187,8 +187,8 @@ RBTree *createTree(char *dictionary, char *configFile) {
     pthread_cond_init(&prodQueue, NULL);
     pthread_cond_init(&consQueue, NULL);
 
-    pthread_attr_t attr;
     // Initialise the joinable attribute
+    pthread_attr_t attr;
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
@@ -205,6 +205,8 @@ RBTree *createTree(char *dictionary, char *configFile) {
     // The producers are done working, therefore we now wait for the consumer thread to finish
     PRODUCERS_NOT_DONE = false;
     pthread_join(threads[NUMTHREADS], NULL);
+
+    // Free all
     free(hashBuffer);
     fclose(fp);
     pthread_mutex_destroy(&mutexHashTable);
